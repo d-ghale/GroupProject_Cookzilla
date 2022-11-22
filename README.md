@@ -7,8 +7,11 @@
 Allow a user to:
 1. **Search for Recipes**: 
   Users should be able to search for recipes that have a particular tag and/or a given number of stars.
+  **We need to add dummy data.**
+  
 2. **Display Recipe Info**: 
   Given a recipeID (possibly selected from a menu based on a search), display relevant information about the recipe, including the description, the steps in order, etc
+  
 3. **Login**: 
   The user enters her username and password. Cookzilla will add “salt” to the password, hash it, and check whether the hash of the password matches the stored password for that username. If so, it initiates a session, storing the username and any other relevant data in session variables, then goes to the home page (or provides some mechanism for the user to select her next action.) 
   If the password does not match the stored password for that username (or no such user exists), Cookzilla informs the user that the login failed and does not initiate the session. 
@@ -39,9 +42,10 @@ Allow a user to:
 - Post a review
 - Post an event for a group that user belongs to
 - RSVP to an event that the user belongs to
-- Convert the units in a recipe
-- More complex searches
+- More complex searches: ingredients, 
 - Search for users with similar taste as the given user (e.g. who have given similar ratings to some kinds of recipes)
+
+- Convert the units in a recipe
 - The user can set a preferred unit, and everytime they see the recipe ingredients, they should be able to see it in the previously set unit.
 
 If you want to do any other query apart from the ones suggested above, please check-in with us first by **Dec 6**.
