@@ -32,17 +32,17 @@ Allow a user to:
 
 **Extensions**:
 
-1. Log users’ actions and display recipes and/or reviews that they viewed recently
+1. Log users’ actions and display recipes and/or reviews that they viewed recently: Bharath
 
-2. Post a review
+2. Post a review: Bharath
 
-3. Post an event for a group that user belongs to
+3. Post an event for a group that user belongs to: Doma
 
-4. RSVP to an event that the user belongs to
+4. RSVP to an event that the user belongs to: Doma
 
-5. More complex searches
+5. More complex searches: Junaid
 
-6. Search for users with similar taste as the given user (e.g. who have given similar ratings to some kinds of recipes)
+6. Search for users with similar taste as the given user (e.g. who have given similar ratings to some kinds of recipes): Junaid
 
 
 **Extensions Options**:
