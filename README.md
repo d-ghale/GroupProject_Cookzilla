@@ -6,17 +6,28 @@
 
 Allow a user to:
 1. **Search for Recipes**: Junaid
+
   Users should be able to search for recipes that have a particular tag and/or a given number of stars.
+  
 2. **Display Recipe Info**: Doma
+
+
   Given a recipeID (possibly selected from a menu based on a search), display relevant information about the recipe, including the description, the steps in order, etc
+  
+  
 3. **Login**: Bharath
+
+
   The user enters her username and password. Cookzilla will add “salt” to the password, hash it, and check whether the hash of the password matches the stored password for that username. If so, it initiates a session, storing the username and any other relevant data in session variables, then goes to the home page (or provides some mechanism for the user to select her next action.) 
   If the password does not match the stored password for that username (or no such user exists), Cookzilla informs the user that the login failed and does not initiate the session. 
    We will supply Python/Flask code for this. If you’re using a different implementation language, you’ll need to write this yourself. After successful login, the user should see their profile, the recipes they’ve posted and the groups they belong to. 
    
    **The remaining use cases require the user to be logged in.**
 
+
 4. **Post a Recipe**: Bharath
+
+
   Post a recipe and related data (steps, tags, etc)
 
 **Extensions**:
