@@ -19,7 +19,7 @@ conn = pymysql.connect(host='localhost',
                        port = 3306,
                        user='root',
                        password='PASSWORD',
-                       db='FlaskDemo',
+                       db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
 
@@ -74,11 +74,13 @@ def loginAuth():
     #grabs information from the forms
     username = request.form['username']
     password = request.form['password']
+    
+
 
     #cursor used to send queries
     cursor = conn.cursor()
     #executes query
-    query = 'SELECT * FROM user WHERE username = %s and password = %s'
+    query = 'SELECT * FROM Person WHERE username = %s and password = %s'
     cursor.execute(query, (username, password))
     #stores the results in a variable
     data = cursor.fetchone()
@@ -108,12 +110,17 @@ def registerAuth():
     #grabs information from the forms
     username = request.form['username']
     password = request.form['password']
+    fname = request.form['fname']
+    lname = request.form['lname']
+    email=request.form['email']
+    bio=request.form['bio']
+
     #You don’t want to store your passwords in your database as plain text, you probably want to hash it
 
     #cursor used to send queries
     cursor = conn.cursor()
     #executes query
-    query = 'SELECT * FROM user WHERE username = %s'
+    query = 'SELECT * FROM Person WHERE username = %s'
     cursor.execute(query, (username))
     #stores the results in a variable
     data = cursor.fetchone()
@@ -124,8 +131,8 @@ def registerAuth():
         error = "This user already exists"
         return render_template('register.html', error = error)
     else:
-        ins = 'INSERT INTO user VALUES(%s, %s)'
-        cursor.execute(ins, (username, password))
+        ins = 'INSERT INTO Person VALUES(%s, %s, %s, %s, %s, %s)'
+        cursor.execute(ins, (username, password,fname,lname,email,bio))
         conn.commit()
         cursor.close()
         return render_template('index.html')
@@ -134,15 +141,15 @@ def registerAuth():
 @app.route('/home')
 def home():
     user = session['username']
-    cursor = conn.cursor();
-    query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
-    cursor.execute(query, (user))
-    data = cursor.fetchall()
-    # We want to allow the user to be able to post and see their posts on the front page. 
-    # We call fetchall() and pass it into the home.html page.
+    # cursor = conn.cursor();
+    # query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
+    # cursor.execute(query, (user))
+    # data = cursor.fetchall()
+    # # We want to allow the user to be able to post and see their posts on the front page. 
+    # # We call fetchall() and pass it into the home.html page.
 
-    cursor.close()
-    return render_template('home.html', username=user, posts=data)
+    # cursor.close()
+    return render_template('home.html', username=user)
 
         
 @app.route('/post', methods=['GET', 'POST'])

@@ -16,9 +16,9 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 # This sets the configuration to connect to your MySQL database
 #Configure MySQL
 conn = pymysql.connect(host='localhost',
-                       port = 8889,
+                       port = 3306,
                        user='root',
-                       password='root',
+                       password='PASSWORD',
                        db='FlaskDemo',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
