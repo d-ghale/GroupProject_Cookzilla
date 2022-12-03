@@ -1,6 +1,9 @@
 #Import Flask Library
 from flask import Flask, render_template, request, session, url_for, redirect, flash
 import pymysql.cursors
+import bcrypt
+
+import hashlib
 
 #for uploading photo:
 from app import app
@@ -74,14 +77,16 @@ def loginAuth():
     #grabs information from the forms
     username = request.form['username']
     password = request.form['password']
-    
-
+    #adding the salt to the password and hasing
+    salt="Fall2022"
+    Copassword = password+salt
+    hashed_password = hashlib.md5(Copassword.encode()).hexdigest()
 
     #cursor used to send queries
     cursor = conn.cursor()
     #executes query
     query = 'SELECT * FROM Person WHERE username = %s and password = %s'
-    cursor.execute(query, (username, password))
+    cursor.execute(query, (username, hashed_password))
     #stores the results in a variable
     data = cursor.fetchone()
     #use fetchall() if you are expecting more than 1 data row
@@ -89,6 +94,7 @@ def loginAuth():
     # We call fetchall() and pass it into the home.html page.
     cursor.close()
     error = None
+
     if(data):
         #creates a session for the the user
         #session is a built in
@@ -114,7 +120,7 @@ def registerAuth():
     lname = request.form['lname']
     email=request.form['email']
     bio=request.form['bio']
-
+    salt="Fall2022"
     #You don’t want to store your passwords in your database as plain text, you probably want to hash it
 
     #cursor used to send queries
@@ -126,13 +132,18 @@ def registerAuth():
     data = cursor.fetchone()
     #use fetchall() if you are expecting more than 1 data row
     error = None
+    
+    #adding the salt to the password and hasing
+
+    Copassword = password+salt
+    hashed_password = hashlib.md5(Copassword.encode()).hexdigest()
     if(data):
         #If the previous query returns data, then user exists
         error = "This user already exists"
         return render_template('register.html', error = error)
     else:
         ins = 'INSERT INTO Person VALUES(%s, %s, %s, %s, %s, %s)'
-        cursor.execute(ins, (username, password,fname,lname,email,bio))
+        cursor.execute(ins, (username, hashed_password,fname,lname,email,bio))
         conn.commit()
         cursor.close()
         return render_template('index.html')
@@ -151,10 +162,23 @@ def home():
     # cursor.close()
     return render_template('home.html', username=user)
 
+
+
+#adding a new recipe
+
+
+
+
+
+
+
         
 @app.route('/post', methods=['GET', 'POST'])
 # Notice in the insert that we only insert into blog_post, and username.
 #We don’t want to insert into the timestamp because MySQL automatically updates it for us.
+
+
+
 
 def post():
     username = session['username']
