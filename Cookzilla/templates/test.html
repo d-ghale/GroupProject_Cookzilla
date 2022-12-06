@@ -1,0 +1,35 @@
+!htm
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>The template Element</h1>
+<div id="parent">
+<div class="form-floating mb-3">
+    <input type="text" class="form-control" id="floatingInput" placeholder="Intial Step" name="step1">
+    <label for="floatingInput">Intial Step</label>
+  </div>
+</div>
+<button onclick="showContent()">add</button>
+
+
+
+<script>
+function showContent() {
+    var div = document.createElement("div")
+    var input=document.createElement("input")
+    input.setAttribute("placeholder","Next Step")
+    var parent=document.getElementById("parent")
+    
+    var label=document.createElement("label")
+    label.innerHTML="Next Step"
+    div.appendChild(input)
+    div.appendChild(label)
+    parent.appendChild(div)
+
+    
+}
+</script>
+
+</body>
+</html>

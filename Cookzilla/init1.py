@@ -154,6 +154,9 @@ def home():
     if session.get('username')!=None:
 
         user = session['username']
+        
+
+
         # cursor = conn.cursor();
         # query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
         # cursor.execute(query, (user))
@@ -171,24 +174,126 @@ def home():
 
 #adding a new recipe
 @app.route('/addrecipe')
-def add_recipe():
-    
-        
+def add_recipe():    
         #need to add tags and description in appropriate palces
 
     if session.get('username')!=None:
         return render_template('add_recipe.html')
+
+
+
     else:
         return render_template('login.html')
     
+
+def insertingi(iname):
+    cursor = conn.cursor()
+    ins='SELECT COUNT(1) FROM Ingredient WHERE iName=%s'
+    cursor.execute(ins, (iname))
+    data = cursor.fetchone()
+    if data['COUNT(1)']==0:
+        ins='INSERT INTO Ingredient(iName) VALUES(%s)'
+        cursor.execute(ins, (iname))
+        conn.commit()
+    
+    #print(data['COUNT(1)'])
+
+def insertunit(unit):
+    cursor = conn.cursor()
+    ins='SELECT COUNT(1) FROM Unit WHERE unitName=%s'
+    cursor.execute(ins, (unit))
+    data = cursor.fetchone()
+    if data['COUNT(1)']==0:
+        ins='INSERT INTO Unit(unitName) VALUES(%s)'
+        cursor.execute(ins, (unit))
+        conn.commit()
+
+
+@app.route('/addsteps', methods=['GET','POST'])
+def addsteps():
+    data=request.form
+    steps=data.getlist('step')
+    ingredients=data.getlist('ingredient')
+    cursor = conn.cursor()
+    recipeID=session['recipeID']
+    for ingredient in ingredients:
+        things=ingredient.split(" ")
+        iname=things[0]
+        insertingi(iname)
+        unit=things[2]
+        amount=int(things[1])
+
+        insertunit(unit)
+        
+        ins='INSERT INTO RecipeIngredient(recipeID,iName,unitName,amount) VALUES(%s,%s,%s,%s)'
+        cursor.execute(ins, (recipeID,iname,unit,amount))
+        conn.commit()
+    print("ingi done")
+
+    # RecipeIngredient
+
+    # Step
+    ins='INSERT INTO Step(stepNo,recipeID,sDesc) VALUES (%s,%s,%s)'
+    for i,step in enumerate(steps):
+        cursor.execute(ins, (i,recipeID,step))
+        conn.commit()
+
+    print("step done")
+
     
 
+    return render_template('home.html',username=session['username'])
 
 
+@app.route('/addrecipeprocess', methods=['GET','POST'])
+def add_recipe_process():
+    if session.get('username')!=None:
+        username = session['username']
+        recipetitle = request.form['recipetitle']
+        num_servings = request.form['num_servings']
+        num_steps = request.form['num_steps']
+        num_ingredients = request.form['num_ingredients']
 
+        tags = request.form['tags']
+        tagslist=tags.split(",")
+        cursor = conn.cursor()
 
+        #Creating the Recipe in Recipe Table
+        ins = 'INSERT INTO Recipe(title,numServings,postedBy) VALUES(%s, %s, %s)'
+        cursor.execute(ins, (recipetitle,num_servings,username))
+        conn.commit()
 
         
+
+
+        #Fetching the recipe ID
+        ins='SELECT recipeID FROM Recipe WHERE title=%s AND postedBy=%s'
+        cursor.execute(ins,(recipetitle,username))
+
+        data = cursor.fetchone()
+        print(data)
+        recipeID=data["recipeID"]
+        session['recipeID'] = recipeID
+        #Creating Tags for the Recipe in 
+
+        #RecipeTag
+        ins='INSERT INTO RecipeTag(recipeID,tagText) VALUES(%s,%s)'
+        for tag in tagslist:
+            cursor.execute(ins, (recipeID,tag))
+            conn.commit()
+
+        
+        return render_template('add_steps.html',recipename=recipetitle,nsteps=int(num_steps),nings=int(num_ingredients))
+    else:
+
+        return render_template('login.html')
+
+
+
+
+
+
+
 @app.route('/post', methods=['GET', 'POST'])
 # Notice in the insert that we only insert into blog_post, and username.
 #We don’t want to insert into the timestamp because MySQL automatically updates it for us.

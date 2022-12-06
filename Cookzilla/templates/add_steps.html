@@ -40,33 +40,24 @@
 					  <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
 						<div class="card border-0 shadow rounded-3 my-5">
 						  <div class="card-body p-4 p-sm-5">
-							<h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Add a New Recipe</h5>
-							<form action="/addrecipeprocess" method="POST">
+							<h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Add Steps for {{recipename}}</h5>
+
+							<form action="/addsteps" method="POST">
+                                
+                                {%for i in range(0, nsteps)%}
 							  <div class="form-floating mb-3">
-								<input type="text" class="form-control" id="floatingInput" placeholder="Recipe Title" name="recipetitle">
-								<label for="floatingInput">Recipe Title</label>
+								<input type="text" class="form-control" id="floatingInput" placeholder="Step" name="step">
+								<label for="floatingInput">Step-{{i+1}}</label>
 							  </div>
-                              <div class="form-floating mb-3">
-								<input type="number" class="form-control" id="floatingInput" placeholder="Number of Servings" name="num_servings">
-								<label for="floatingInput">Number of Servings</label>
+                              {%endfor%} 
+                              <h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Add Ingredients for {{recipename}}</h5>
+                              {%for i in range(0, nings)%}
+							  <div class="form-floating mb-3">
+								<input type="text" class="form-control" id="floatingInput" placeholder="Ingredient" name="ingredient">
+								<label for="floatingInput">Ingredient-{{i+1}}</label>
 							  </div>
-                              <div class="form-floating mb-3">
-								<input type="text" class="form-control" id="floatingInput" placeholder="Tags" name="tags">
-								<label for="floatingInput">Tags</label>
-							  </div>
-                              <div class="form-floating mb-3">
-								<input type="number" class="form-control" id="floatingInput" placeholder="Number of Steps" name="num_steps">
-								<label for="floatingInput">Number of Steps</label>
-							  </div>
-                              <div class="form-floating mb-3">
-								<input type="number" class="form-control" id="floatingInput" placeholder="Number of Ingredients" name="num_ingredients">
-								<label for="floatingInput">Number of Ingredients</label>
-							  </div>
-                              <div class="form-floating mb-3">
-								<input type="file" class="form-control" id="floatingInput" placeholder="picture" name="picture">
-								<label for="floatingInput">Recipe Image</label>
-							  </div>
-                             
+                              {%endfor%} 
+
 							 
 							  
 				
