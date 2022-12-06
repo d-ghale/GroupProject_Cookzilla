@@ -132,7 +132,7 @@ def registerAuth():
     data = cursor.fetchone()
     #use fetchall() if you are expecting more than 1 data row
     error = None
-    
+
     #adding the salt to the password and hasing
 
     Copassword = password+salt
@@ -151,21 +151,37 @@ def registerAuth():
 
 @app.route('/home')
 def home():
-    user = session['username']
-    # cursor = conn.cursor();
-    # query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
-    # cursor.execute(query, (user))
-    # data = cursor.fetchall()
-    # # We want to allow the user to be able to post and see their posts on the front page. 
-    # # We call fetchall() and pass it into the home.html page.
+    if session.get('username')!=None:
 
-    # cursor.close()
-    return render_template('home.html', username=user)
+        user = session['username']
+        # cursor = conn.cursor();
+        # query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
+        # cursor.execute(query, (user))
+        # data = cursor.fetchall()
+        # # We want to allow the user to be able to post and see their posts on the front page. 
+        # # We call fetchall() and pass it into the home.html page.
+
+        # cursor.close()
+        return render_template('home.html', username=user)
+    else:
+        return render_template('login.html')
+
 
 
 
 #adding a new recipe
+@app.route('/addrecipe')
+def add_recipe():
+    
+        
+        #need to add tags and description in appropriate palces
 
+    if session.get('username')!=None:
+        return render_template('add_recipe.html')
+    else:
+        return render_template('login.html')
+    
+    
 
 
 
