@@ -289,78 +289,44 @@ def add_recipe_process():
         return render_template('login.html')
 
 
-
-
-
-
-
-@app.route('/post', methods=['GET', 'POST'])
-# Notice in the insert that we only insert into blog_post, and username.
-#We don’t want to insert into the timestamp because MySQL automatically updates it for us.
-
-
-
-
-def post():
-    username = session['username']
-    cursor = conn.cursor();
-    blog = request.form['blog']
-    query = 'INSERT INTO blog (blog_post, username) VALUES(%s, %s)'
-    cursor.execute(query, (blog, username))
-    conn.commit()
-    cursor.close()
-    return redirect(url_for('home'))
-
-@app.route('/select_blogger')
-def select_blogger():
-    #check that user is logged in
-    #username = session['username']
-    #should throw exception if username not found
-    
-    cursor = conn.cursor();
-    query = 'SELECT DISTINCT username FROM blog'
-    cursor.execute(query)
+@app.route('/viewrecipes')
+def viewrecipes():
+    cursor = conn.cursor()
+    ins='SELECT * FROM Recipe'
+    cursor.execute(ins)
     data = cursor.fetchall()
-    cursor.close()
-    return render_template('select_blogger.html', user_list=data)
-
-@app.route('/show_posts', methods=["GET", "POST"])
-def show_posts():
-    poster = request.args['poster']
-    cursor = conn.cursor();
-    query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
-    cursor.execute(query, poster)
-    data = cursor.fetchall()
-    cursor.close()
-    return render_template('show_posts.html', poster_name=poster, posts=data)
+    print(len(data))
+    return render_template('viewrecipe.html',data=data,len=len(data))
 
 
-def allowed_file(filename):
-	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-	
-@app.route('/')
-def upload_form():
-	return render_template('upload.html')
+@app.route('/viewonerecipe', methods=['GET','POST'])
 
-@app.route('/', methods=['POST'])
-def upload_file():
-	if request.method == 'POST':
-        # check if the post request has the file part
-		if 'file' not in request.files:
-			flash('No file part')
-			return redirect(request.url)
-		file = request.files['file']
-		if file.filename == '':
-			flash('No file selected for uploading')
-			return redirect(request.url)
-		if file and allowed_file(file.filename):
-			filename = secure_filename(file.filename)
-			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-			flash('File successfully uploaded')
-			return redirect('/')
-		else:
-			flash('Allowed file types are txt, pdf, png, jpg, jpeg, gif')
-			return redirect(request.url)
+def viewonerecipe():
+    # recipeID=request.form['recipeID']
+    recipeID= request.args['r']
+    cursor = conn.cursor()
+    ins='SELECT * FROM Recipe WHERE recipeID=%s'
+    cursor.execute(ins,(recipeID))
+    Recipedata = cursor.fetchall()
+    ins='SELECT * FROM RecipeIngredient WHERE recipeID=%s'
+    cursor.execute(ins,(recipeID))
+    RecipeIngredientdata = cursor.fetchall()
+    ins='SELECT * FROM Step WHERE recipeID=%s'
+    cursor.execute(ins,(recipeID))
+    Stepdata = cursor.fetchall()
+    ins='SELECT * FROM RecipeTag WHERE recipeID=%s'
+    cursor.execute(ins,(recipeID))
+    Tagdata = cursor.fetchall()
+
+
+    return render_template('viewonerecipe.html',Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientdata,Stepdata=Stepdata,Tagdata=Tagdata,recipeID=recipeID)
+
+
+
+
+
+
+
 
 
 @app.route('/logout')
