@@ -39,19 +39,24 @@
         <!-- Masthead-->
         <header class="masthead bg-primary text-white text-center">
             <div class="container d-flex align-items-center flex-column">
-				<div class="container">
-					<div class="row">
-					  <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
-						<div class="card border-0 shadow rounded-3 my-5">
-						  <div class="card-body p-4 p-sm-5">
-							
+                {%for i in range(0, len)%}
+				
+                  <div class="card" style="width: 18rem;">
+                    <!-- <img class="card-img-top" src="..." alt="Card image cap"> -->
+                    <form action="/viewonerecipe?r={{data[i].recipeID}}" method="POST">
+                    <div class="card-body">
+                      <h5 class="card-title" style="color: black;">{{data[i].title}}</h5>
+                      <p class="card-text" style="color: black;">Number of Servings: {{data[i].numServings}}, Posted By {{data[i].postedBy}}</p>
+                      <div name="recipid" value="{{data[i].recipeID}}"></div>
+					<button class="btn btn-primary btn-login text-uppercase fw-bold" type="submit">Read More</button>
 
-							<h1 style="color: black;">Welcome {{username}}</h1>
-						  </div>
-						</div>
-					  </div>
-					</div>
-				  </div>
+                    </div>
+                    <br/>
+                    </div>
+                </form>
+                    {%endfor%} 
+                  
+                  
             </div>
         </header>
         <!-- Portfolio Section-->
