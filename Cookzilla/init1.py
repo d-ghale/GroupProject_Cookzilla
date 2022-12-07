@@ -299,8 +299,38 @@ def viewrecipes():
     return render_template('viewrecipe.html',data=data,len=len(data))
 
 
-@app.route('/viewonerecipe', methods=['GET','POST'])
 
+@app.route('/addreview', methods=['GET','POST'])
+def addreview():
+    if session.get('username')!=None:
+        print(request.args)
+        recipeID= request.args['r']
+        return render_template('addreview.html',recipeID=recipeID)
+    else:
+        return render_template('login.html')
+
+
+@app.route('/publishreview', methods=['GET','POST'])
+def publishreview():
+    if session.get('username')!=None:
+        username = session['username']
+        recipeID= request.args['r']
+        print(request.args)
+        reviewtitle = request.form['reviewtitle']
+        reviewstars = request.form['reviewstars']
+        description = request.form['description']
+        cursor = conn.cursor()
+        ins='INSERT INTO Review(userName,recipeID,revTitle,revDesc,stars) VALUES (%s,%s,%s,%s,%s)'
+        cursor.execute(ins,(username,recipeID,reviewtitle,description,int(reviewstars)))
+        conn.commit()
+        return render_template('home.html',username=username)
+    else:
+        return render_template('login.html')
+
+
+
+
+@app.route('/viewonerecipe', methods=['GET','POST'])
 def viewonerecipe():
     # recipeID=request.form['recipeID']
     recipeID= request.args['r']
@@ -317,9 +347,12 @@ def viewonerecipe():
     ins='SELECT * FROM RecipeTag WHERE recipeID=%s'
     cursor.execute(ins,(recipeID))
     Tagdata = cursor.fetchall()
+    ins='SELECT * FROM Review WHERE recipeID=%s'
+    cursor.execute(ins,(recipeID))
+    ReviewData = cursor.fetchall()
 
 
-    return render_template('viewonerecipe.html',Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientdata,Stepdata=Stepdata,Tagdata=Tagdata,recipeID=recipeID)
+    return render_template('viewonerecipe.html',Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientdata,Stepdata=Stepdata,Tagdata=Tagdata,recipeID=recipeID,ReviewData=ReviewData)
 
 
 
