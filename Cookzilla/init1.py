@@ -21,7 +21,7 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 conn = pymysql.connect(host='localhost',
                        port = 3306,
                        user='root',
-                       password='PASSWORD',
+                       password='',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -214,10 +214,13 @@ def addsteps():
     data=request.form
     steps=data.getlist('step')
     ingredients=data.getlist('ingredient')
+    print(steps)
+    print(ingredients)
     cursor = conn.cursor()
     recipeID=session['recipeID']
     for ingredient in ingredients:
         things=ingredient.split(" ")
+        print(things)
         iname=things[0]
         insertingi(iname)
         unit=things[2]
@@ -354,12 +357,22 @@ def viewonerecipe():
 
     return render_template('viewonerecipe.html',Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientdata,Stepdata=Stepdata,Tagdata=Tagdata,recipeID=recipeID,ReviewData=ReviewData)
 
-
-
-
-
-
-
+@app.route('/explore', methods=['GET','POST'])
+def exploreRecipes():
+    if 'rName' in request.form.keys():
+        cursor = conn.cursor()
+        recipeName=request.form['rName']
+        ins='SELECT * FROM Recipe WHERE title like %s'
+        args=['%'+recipeName+'%']
+        cursor.execute(ins,args)
+    else:
+        print("No rName found, returning all recipes")
+        cursor = conn.cursor()
+        ins='SELECT * FROM Recipe'
+        cursor.execute(ins)
+    data = cursor.fetchall()
+    print(len(data))
+    return render_template('explore.html',data=data,len=len(data))
 
 
 @app.route('/logout')

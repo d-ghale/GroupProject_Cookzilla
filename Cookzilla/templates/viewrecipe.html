@@ -27,6 +27,12 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ms-auto">
+                        <div class="search-container nav-item mx-0 mx-lg-1">
+                            <form action="/explore" method="POST">
+                              <input type="text" placeholder="Search.." name="rName">
+                              <button type="submit"><i class="fa fa-search"></i></button>
+                            </form>
+                          </div>
                         <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="/viewrecipes">View Recipes</a></li>
                         
                         <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="/addrecipe">Add Recipe</a></li>
@@ -40,23 +46,20 @@
         <header class="masthead bg-primary text-white text-center">
             <div class="container d-flex align-items-center flex-column">
                 {%for i in range(0, len)%}
-				
                   <div class="card" style="width: 18rem;">
                     <!-- <img class="card-img-top" src="..." alt="Card image cap"> -->
                     <form action="/viewonerecipe?r={{data[i].recipeID}}" method="POST">
-                    <div class="card-body">
-                      <h5 class="card-title" style="color: black;">{{data[i].title}}</h5>
-                      <p class="card-text" style="color: black;">Number of Servings: {{data[i].numServings}}, Posted By {{data[i].postedBy}}</p>
-                      <div name="recipid" value="{{data[i].recipeID}}"></div>
-					<button class="btn btn-primary btn-login text-uppercase fw-bold" type="submit">Read More</button>
+                        <div class="card-body">
+                        <h5 class="card-title" style="color: black;">{{data[i].title}}</h5>
+                        <p class="card-text" style="color: black;">Number of Servings: {{data[i].numServings}}, Posted By {{data[i].postedBy}}</p>
+                        <div name="recipid" value="{{data[i].recipeID}}"></div>
+                        <button class="btn btn-primary btn-login text-uppercase fw-bold" type="submit">Read More</button>
 
-                    </div>
-                    <br/>
-                    </div>
-                </form>
-                    {%endfor%} 
-                  
-                  
+                        </div>
+                        <br/>
+                        </div>
+                    </form>
+                {%endfor%}
             </div>
         </header>
         <!-- Portfolio Section-->
