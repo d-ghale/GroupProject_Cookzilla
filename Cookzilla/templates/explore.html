@@ -50,7 +50,28 @@
             <!-- Modal content -->
             <div class="modal-content">
               <span class="close">&times;</span>
-              <p>complex filter options</p>
+              <div class="topnav">
+                <h2>filter options</h2>
+                <div class="search-container nav-item mx-0 mx-lg-1">
+                    <form action="/explore" method="POST">
+                        <div>
+                            <input type="radio" id="andTags" name="tagOperation" value="AND">
+                            <label for="andTags">include all tags</label>
+                            <input type="radio" id="orTags" name="tagOperation" value="OR">
+                            <label for="orTags">include any tag(s)</label><br>
+                        </div>
+                        <input type="text" class="form-control" placeholder="Tags" name="tags">
+                        <input type="number" class="form-control" placeholder="Stars" name="stars">
+                        <div>
+                            <input type="radio" id="tagsAndStars" name="tagAndStarOperation" value="AND">
+                            <label for="tagsAndStars">match recipes having both the specified tags and stars</label><br>
+                            <input type="radio" id="tagsOrStars" name="tagOrStarOperation" value="OR">
+                            <label for="tagsOrStars">match recipes either specified tags or stars</label><br>
+                        </div>
+                        <button type="submit">Filter</button>
+                    </form>
+                </div>
+            </div>
             </div>
         </div>
         <!-- Masthead-->
