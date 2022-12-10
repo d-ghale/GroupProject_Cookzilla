@@ -365,6 +365,17 @@ def exploreRecipes():
         ins='SELECT * FROM Recipe WHERE title like %s'
         args=['%'+recipeName+'%']
         cursor.execute(ins,args)
+    elif 'tags' in request.form.keys():
+        cursor = conn.cursor()
+        tags=request.form['tags']
+        tagsList=tags.split(',')
+        stars=request.form['stars']
+        tagOp=request.form['tagOperation']
+        tagAndStarOp=request.form['tagAndStarOperation']
+        print(tags+stars+tagOp+tagAndStarOp)
+        ins='SELECT * FROM Recipe JOIN recipetag ON Recipe.recipeID=recipetag.recipeID where tagText IN %s'
+        args=[tagsList]
+        cursor.execute(ins,args)
     else:
         print("No rName found, returning all recipes")
         cursor = conn.cursor()

@@ -11577,3 +11577,17 @@ html {
   text-decoration: none;
   cursor: pointer;
 }
+
+.modal-content{
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
+  border: #066173;
+}
+
+.modal-content .topnav form{
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
+  border: #066173;
+}

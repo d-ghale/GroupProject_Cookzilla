@@ -27,6 +27,16 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ms-auto">
+                        <div class="topnav">
+                            <div class="search-container nav-item mx-0 mx-lg-1">
+                                <form action="/explore" method="POST">
+                                <input type="text" class="form-control" placeholder="Search.." name="rName">
+                                <button type="submit"><i class="fa fa-search"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                        <li class="nav-item mx-0 mx-lg-1" id="searchFilter" style="display:flex;align-items:center"><i class="fa-solid fa-filter fa-2x" style="color: white;" id="searchFilter"></i></li>
+                        
                         <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="/viewrecipes">View Recipes</a></li>
                         
                         <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="/addrecipe">Add Recipe</a></li>
