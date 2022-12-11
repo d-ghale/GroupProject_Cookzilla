@@ -41,7 +41,7 @@
 						<div class="card border-0 shadow rounded-3 my-5">
 						  <div class="card-body p-4 p-sm-5">
 							<h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Add Review</h5>
-							<form action="/publishreview?r={{recipeID}}" method="POST">
+							<form action="/publishreview?r={{recipeID}}" method="POST" enctype="multipart/form-data">
 							  <div class="form-floating mb-3">
 								<input type="text" class="form-control" id="floatingInput" placeholder="Review Title" name="reviewtitle">
 								<label for="floatingInput">Review Title</label>
@@ -56,7 +56,7 @@
 							  </div>
                              
                               <div class="form-floating mb-3">
-								<input type="file" class="form-control" id="floatingInput" placeholder="picture" name="picture">
+								<input type="file" class="form-control" id="floatingInput" placeholder="picture" name="file">
 								<label for="floatingInput">Review Image</label>
 							  </div>
                              
