@@ -2,7 +2,7 @@
 from flask import Flask, render_template, request, session, url_for, redirect, flash
 import pymysql.cursors
 import bcrypt
-
+import os
 import hashlib
 
 #for uploading photo:
@@ -10,7 +10,9 @@ from app import app
 #from flask import Flask, flash, request, redirect, render_template
 from werkzeug.utils import secure_filename
 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+
+
 
 
 ###Initialize the app from Flask
@@ -21,11 +23,13 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 conn = pymysql.connect(host='localhost',
                        port = 3306,
                        user='root',
-                       password='',
+                       password='PASSWORD',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
 
+def allowed_file(filename):
+	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def allowed_image(filename):
 
@@ -285,6 +289,17 @@ def add_recipe_process():
             cursor.execute(ins, (recipeID,tag))
             conn.commit()
 
+
+        #Taking care of image
+        file = request.files['file']
+        filename = secure_filename(file.filename)
+        ext=filename.split(".")[1]
+        filename=str(recipeID)+"."+ext
+        file.save(os.path.join(app.config['UPLOAD_FOLDER_RECIPE'], filename))
+        q='INSERT INTO RecipePicture(recipeID,pictureURL) VALUES(%s,%s)'
+        cursor.execute(q,(recipeID,os.path.join(app.config['UPLOAD_FOLDER_REVIEW'], filename)))
+        conn.commit()
+
         
         return render_template('add_steps.html',recipename=recipetitle,nsteps=int(num_steps),nings=int(num_ingredients))
     else:
@@ -319,13 +334,23 @@ def publishreview():
         username = session['username']
         recipeID= request.args['r']
         print(request.args)
-        reviewtitle = request.form['reviewtitle']
-        reviewstars = request.form['reviewstars']
-        description = request.form['description']
+        reviewtitle = request.form.get('reviewtitle')
+        reviewstars = request.form.get('reviewstars')
+        description = request.form.get('description')
+        file = request.files['file']
+        filename = secure_filename(file.filename)
+        ext=filename.split(".")[1]
+        filename=recipeID+"_"+username+"."+ext
+        file.save(os.path.join(app.config['UPLOAD_FOLDER_REVIEW'], filename))
         cursor = conn.cursor()
         ins='INSERT INTO Review(userName,recipeID,revTitle,revDesc,stars) VALUES (%s,%s,%s,%s,%s)'
-        cursor.execute(ins,(username,recipeID,reviewtitle,description,int(reviewstars)))
+        q='INSERT INTO ReviewPicture(userName,recipeID,pictureURL) VALUES(%s,%s,%s)'
+        cursor.execute(ins,(username,recipeID,reviewtitle,description,reviewstars))
+        cursor.execute(q,(username,recipeID,os.path.join(app.config['UPLOAD_FOLDER_REVIEW'], filename)))
         conn.commit()
+     
+
+
         return render_template('home.html',username=username)
     else:
         return render_template('login.html')
