@@ -268,7 +268,7 @@ def add_recipe_process():
         #Creating the Recipe in Recipe Table
         ins = 'INSERT INTO Recipe(title,numServings,postedBy) VALUES(%s, %s, %s)'
         cursor.execute(ins, (recipetitle,num_servings,username))
-        conn.commit()
+        #conn.commit()
 
         
 
@@ -287,7 +287,7 @@ def add_recipe_process():
         ins='INSERT INTO RecipeTag(recipeID,tagText) VALUES(%s,%s)'
         for tag in tagslist:
             cursor.execute(ins, (recipeID,tag))
-            conn.commit()
+            #conn.commit()
 
 
         #Taking care of image
