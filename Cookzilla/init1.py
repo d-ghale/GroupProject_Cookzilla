@@ -20,21 +20,21 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ##app.secret_key = "secret key"
 # This sets the configuration to connect to your MySQL database
 #Configure MySQL
-conn = pymysql.connect(host='localhost',
-                       port = 3306,
-                       user='root',
-                       password='PASSWORD',
-                       db='Test',
-                       charset='utf8mb4',
-                       cursorclass=pymysql.cursors.DictCursor)
-### Doma's conn below
 # conn = pymysql.connect(host='localhost',
-#                        port = 8889,
+#                        port = 3306,
 #                        user='root',
-#                        password='root',
+#                        password='PASSWORD',
 #                        db='Test',
 #                        charset='utf8mb4',
 #                        cursorclass=pymysql.cursors.DictCursor)
+## Doma's conn below
+conn = pymysql.connect(host='localhost',
+                       port = 8889,
+                       user='root',
+                       password='root',
+                       db='Test',
+                       charset='utf8mb4',
+                       cursorclass=pymysql.cursors.DictCursor)
 
 
 def allowed_file(filename):
@@ -206,12 +206,30 @@ def add_group():
     else:
         return render_template('login.html')
     
-#adding a new group
+#join a group
 @app.route('/joingroup')
 def join_group():    
     #need to create group in Group table and add creater to groupMembership
     if session.get('username')!=None:
         return render_template('join_group.html')
+    else:
+        return render_template('login.html')
+    
+    #adding a new group
+@app.route('/addevent')
+def add_event():    
+    #need to create group in Group table and add creater to groupMembership
+    if session.get('username')!=None:
+        return render_template('add_event.html')
+    else:
+        return render_template('login.html')
+    
+#join a group
+@app.route('/joinevent')
+def join_event():    
+    #need to create group in Group table and add creater to groupMembership
+    if session.get('username')!=None:
+        return render_template('join_event.html')
     else:
         return render_template('login.html')
     
@@ -356,9 +374,17 @@ def join_group_process():
         group_name = request.form['group_name']
         group_creator = request.form['group_creator']
         cursor = conn.cursor()
-        q='INSERT INTO GroupMembership(memberName, gName, gCreator) VALUES(%s,%s,%s)'
-        cursor.execute(q,(username,group_name,group_creator))
-        
+        #Check if already part of the group
+        ins='SELECT COUNT(*) FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName=%s'
+        cursor.execute(ins,(group_name, group_creator, username))
+        data = cursor.fetchone()
+        print(data)
+        if data == 0:
+            q='INSERT INTO GroupMembership(memberName, gName, gCreator) VALUES(%s,%s,%s)'
+            cursor.execute(q,(username,group_name,group_creator))
+            message_join = "You are not added to the group"
+        else:
+            message_join = "You were already part of the group"
         #Fetching the info
         ins='SELECT * FROM `GROUP` WHERE gName=%s AND gCreator=%s'
         cursor.execute(ins,(group_name, group_creator))
@@ -367,10 +393,69 @@ def join_group_process():
         group_description=data["gDesc"]
         #Creating Tags for the Recipe in 
         conn.commit()
-        return render_template('viewonegroup.html', GCreator = group_creator, GroupName = group_name, GroupDescription=group_description)
+        return render_template('viewonegroup.html', GCreator=group_creator, GroupName=group_name, GroupDescription=group_description, message_join=message_join)
     else:
         return render_template('login.html')
 
+import datetime
+
+@app.route('/addeventprocess', methods=['GET','POST'])
+def add_event_process():
+    if session.get('username')!=None:
+        username = session['username']
+        event_name = request.form['event_name']
+        event_description = request.form['event_description']
+        event_date = request.form['event_date']
+        event_time = request.form['event_time']
+        group_name = request.form['group_name']
+        group_creator = request.form['group_creator']
+        event_datetime = datetime.datetime.strptime(event_date + " " + event_time,"%Y-%m-%d %H:%M")
+        
+        cursor = conn.cursor()
+        ins='INSERT INTO Event(eName, eDesc, eDate, gName, gCreator) VALUES(%s,%s,%s,%s,%s)'
+        cursor.execute(ins,(event_name,event_description,event_datetime, group_name,group_creator))
+        message_join = "New event created"
+
+        ### We need to somehow maybe?? grab eID to make that the next part runs for this function
+        #Fetching the info
+        ins='SELECT * FROM EVENT WHERE eName=%s, eDesc=%s, eDate=%s, gName=%s, gCreator=%s'
+        cursor.execute(ins,(event_name,event_description,event_datetime, group_name,group_creator))
+        Eventdata = cursor.fetchall()
+        print(Eventdata)
+        conn.commit()
+        return render_template('viewoneevent.html', Eventdata=Eventdata, message_join=message_join)
+    else:
+        return render_template('login.html')
+
+@app.route('/joineventprocess', methods=['GET','POST'])
+def join_event_process():
+    if session.get('username')!=None:
+        username = session['username']
+        event_ID = request.form['event_ID']
+        event_response = request.form['event_response']
+        cursor = conn.cursor()
+        
+        #Check if already part of the group, needs fix!  
+        # ins='SELECT COUNT(*) AS size FROM GroupMembership JOIN Event WHERE eID=%s AND memberName=%s'
+        ins='SELECT * FROM GroupMembership JOIN Event WHERE eID=%s AND memberName=%s'
+        cursor.execute(ins,(event_ID, username))
+        data = cursor.fetchone()
+        print(data)
+        if data['size'] == 0:
+            message_join = "Sorry this event is restricted to members only"
+        else:
+            q='INSERT INTO RSVP(userName, eID, response) VALUES(%s,%s,%s)'
+            cursor.execute(q,(username,event_ID,event_response))
+            message_join = "Your response to the event is " + event_response
+        #Fetching the info
+        ins='SELECT * FROM EVENT WHERE eID=%s'
+        cursor.execute(ins,(event_ID))
+        Eventdata = cursor.fetchone()
+        print(Eventdata)
+        conn.commit()
+        return render_template('viewoneevent.html', Eventdata=Eventdata, message_join=message_join)
+    else:
+        return render_template('login.html')
 
 
 @app.route('/viewrecipes')
@@ -522,34 +607,6 @@ def exploreRecipes():
     data = cursor.fetchall()
     print(len(data))
     return render_template('explore.html',data=data,len=len(data))
-
-@app.route('/exploreGroup', methods=['GET','POST'])
-def exploreGroup():
-    if 'rName' in request.form.keys():
-        cursor = conn.cursor()
-        groupName=request.form['rName']
-        ins='SELECT * FROM `Group` WHERE gName like %s'
-        args=['%'+groupName+'%']
-        cursor.execute(ins,args)
-    # elif 'tags' in request.form.keys():
-    #     cursor = conn.cursor()
-    #     tags=request.form['tags']
-    #     tagsList=tags.split(',')
-    #     stars=request.form['stars']
-    #     tagOp=request.form['tagOperation']
-    #     tagAndStarOp=request.form['tagAndStarOperation']
-    #     print(tags+stars+tagOp+tagAndStarOp)
-    #     ins='SELECT * FROM Recipe JOIN recipetag ON Recipe.recipeID=recipetag.recipeID where tagText IN %s'
-    #     args=[tagsList]
-    #     cursor.execute(ins,args)
-    else:
-        print("No rName found, returning all groups")
-        cursor = conn.cursor()
-        ins='SELECT * FROM Group'
-        cursor.execute(ins)
-    data = cursor.fetchall()
-    print(len(data))
-    return render_template('explore_group.html',data=data,len=len(data))
 
 @app.route('/logout')
 # To log out of the application, simply pop ‘username’ from the session store.

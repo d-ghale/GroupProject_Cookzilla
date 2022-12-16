@@ -45,11 +45,9 @@
 						<div class="card border-0 shadow rounded-3 my-5">
 						  <div class="card-body p-4 p-sm-5">
                             <p style="color: black;"> {{message_join}}!!! </p>
-							<h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Details about Group {{GroupName}}</h5>
-                            <p style="color: black;text-align: right;"> created by {{GCreator}} </p>
-                            <p style="color: black;text-align: left;"> {{GroupDescription}} </p>
-                            <a class="nav-link py-3 px-0 px-lg-3 rounded" href="/addevent">Add Event</a></li>
-
+							<h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Details about Event {{Eventdata.eName}}</h5>
+                            <p style="color: black;text-align: right;"> This event will be held on  {{Eventdata.eDate}}, and is exclusive to Group {{Eventdata.gName}} created by {{Eventdata.gCreator}} </p>
+                            <p style="color: black;text-align: left;"> {{Eventdata.eDesc}} </p>
 						  </div>
 						</div>
 					  </div>
