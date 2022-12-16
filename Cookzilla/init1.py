@@ -335,14 +335,22 @@ def add_recipe_process():
 
 
         #Taking care of image
+
         file = request.files['file']
         filename = secure_filename(file.filename)
-        ext=filename.split(".")[1]
-        filename=str(recipeID)+"."+ext
-        file.save(os.path.join(app.config['UPLOAD_FOLDER_RECIPE'], filename))
-        q='INSERT INTO RecipePicture(recipeID,pictureURL) VALUES(%s,%s)'
-        cursor.execute(q,(recipeID,os.path.join(app.config['UPLOAD_FOLDER_REVIEW'], filename)))
-        conn.commit()
+        print(filename)
+        if filename=="":
+            return render_template('add_steps.html',recipename=recipetitle,nsteps=int(num_steps),nings=int(num_ingredients))
+        else:
+
+            
+            
+            ext=filename.split(".")[1]
+            filename=str(recipeID)+"."+ext
+            file.save(os.path.join(app.config['UPLOAD_FOLDER_RECIPE'], filename))
+            q='INSERT INTO RecipePicture(recipeID,pictureURL) VALUES(%s,%s)'
+            cursor.execute(q,(recipeID,os.path.join(app.config['UPLOAD_FOLDER_RECIPE'], filename)))
+            conn.commit()
 
         
         return render_template('add_steps.html',recipename=recipetitle,nsteps=int(num_steps),nings=int(num_ingredients))
@@ -484,25 +492,42 @@ def publishreview():
     if session.get('username')!=None:
         username = session['username']
         recipeID= request.args['r']
-        print(request.args)
-        reviewtitle = request.form.get('reviewtitle')
-        reviewstars = request.form.get('reviewstars')
-        description = request.form.get('description')
-        file = request.files['file']
-        filename = secure_filename(file.filename)
-        ext=filename.split(".")[1]
-        filename=recipeID+"_"+username+"."+ext
-        file.save(os.path.join(app.config['UPLOAD_FOLDER_REVIEW'], filename))
         cursor = conn.cursor()
-        ins='INSERT INTO Review(userName,recipeID,revTitle,revDesc,stars) VALUES (%s,%s,%s,%s,%s)'
-        q='INSERT INTO ReviewPicture(userName,recipeID,pictureURL) VALUES(%s,%s,%s)'
-        cursor.execute(ins,(username,recipeID,reviewtitle,description,reviewstars))
-        cursor.execute(q,(username,recipeID,os.path.join(app.config['UPLOAD_FOLDER_REVIEW'], filename)))
-        conn.commit()
-     
+
+        print(request.args)
+        qs="SELECT userName from Review WHERE recipeID=%s"
+        cursor.execute(qs,(recipeID))
+        data = cursor.fetchall()
+        if len(data)!=0:
+            flash("You can only post once")  
+            return render_template('error.html',username=username)
+
+        else:
+            print(data,len(data))
+            reviewtitle = request.form.get('reviewtitle')
+            reviewstars = request.form.get('reviewstars')
+            description = request.form.get('description')
+            
+            file = request.files['file']
+            filename = secure_filename(file.filename)
+            ins='INSERT INTO Review(userName,recipeID,revTitle,revDesc,stars) VALUES (%s,%s,%s,%s,%s)'
+            cursor.execute(ins,(username,recipeID,reviewtitle,description,reviewstars))
+
+            if filename =="":
+                conn.commit()
+            else:
+
+                ext=filename.split(".")[1]
+                filename=recipeID+"_"+username+"."+ext
+                file.save(os.path.join(app.config['UPLOAD_FOLDER_REVIEW'], filename))
+                
+                q='INSERT INTO ReviewPicture(userName,recipeID,pictureURL) VALUES(%s,%s,%s)'
+                cursor.execute(q,(username,recipeID,os.path.join(app.config['UPLOAD_FOLDER_REVIEW'], filename)))
+            conn.commit()
+        
 
 
-        return render_template('home.html',username=username)
+            return render_template('home.html',username=username)
     else:
         return render_template('login.html')
 
