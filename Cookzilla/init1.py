@@ -27,6 +27,15 @@ conn = pymysql.connect(host='localhost',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
+### Doma's conn below
+# conn = pymysql.connect(host='localhost',
+#                        port = 8889,
+#                        user='root',
+#                        password='root',
+#                        db='Test',
+#                        charset='utf8mb4',
+#                        cursorclass=pymysql.cursors.DictCursor)
+
 
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -188,6 +197,41 @@ def add_recipe():
 
     else:
         return render_template('login.html')
+#adding a new group
+@app.route('/addgroup')
+def add_group():    
+    #need to create group in Group table and add creater to groupMembership
+    if session.get('username')!=None:
+        return render_template('add_group.html')
+    else:
+        return render_template('login.html')
+    
+#join a group
+@app.route('/joingroup')
+def join_group():    
+    #need to create group in Group table and add creater to groupMembership
+    if session.get('username')!=None:
+        return render_template('join_group.html')
+    else:
+        return render_template('login.html')
+    
+    #adding a new group
+@app.route('/addevent')
+def add_event():    
+    #need to create group in Group table and add creater to groupMembership
+    if session.get('username')!=None:
+        return render_template('add_event.html')
+    else:
+        return render_template('login.html')
+    
+#join a group
+@app.route('/joinevent')
+def join_event():    
+    #need to create group in Group table and add creater to groupMembership
+    if session.get('username')!=None:
+        return render_template('join_event.html')
+    else:
+        return render_template('login.html')
     
 
 def insertingi(iname):
@@ -306,6 +350,113 @@ def add_recipe_process():
 
         return render_template('login.html')
 
+@app.route('/addgroupprocess', methods=['GET','POST'])
+def add_group_process():
+    if session.get('username')!=None:
+        username = session['username']
+        group_name = request.form['group_name']
+        group_description = request.form['group_description']
+        cursor = conn.cursor()
+        ins='INSERT INTO `Group`(gName, gCreator, gDesc) VALUES(%s,%s,%s)'
+        cursor.execute(ins,(group_name,username,group_description))
+
+        q='INSERT INTO GroupMembership( memberName, gName, gCreator) VALUES(%s,%s,%s)'
+        cursor.execute(q,(username,group_name,username))
+        conn.commit()
+        return render_template('viewonegroup.html', GCreator = username, GroupName = group_name, GroupDescription=group_description)
+    else:
+        return render_template('login.html')
+
+@app.route('/joingroupprocess', methods=['GET','POST'])
+def join_group_process():
+    if session.get('username')!=None:
+        username = session['username']
+        group_name = request.form['group_name']
+        group_creator = request.form['group_creator']
+        cursor = conn.cursor()
+        #Check if already part of the group
+        ins='SELECT COUNT(*) FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName=%s'
+        cursor.execute(ins,(group_name, group_creator, username))
+        data = cursor.fetchone()
+        print(data)
+        if data == 0:
+            q='INSERT INTO GroupMembership(memberName, gName, gCreator) VALUES(%s,%s,%s)'
+            cursor.execute(q,(username,group_name,group_creator))
+            message_join = "You are not added to the group"
+        else:
+            message_join = "You were already part of the group"
+        #Fetching the info
+        ins='SELECT * FROM `GROUP` WHERE gName=%s AND gCreator=%s'
+        cursor.execute(ins,(group_name, group_creator))
+        data = cursor.fetchone()
+        print(data)
+        group_description=data["gDesc"]
+        #Creating Tags for the Recipe in 
+        conn.commit()
+        return render_template('viewonegroup.html', GCreator=group_creator, GroupName=group_name, GroupDescription=group_description, message_join=message_join)
+    else:
+        return render_template('login.html')
+
+import datetime
+
+@app.route('/addeventprocess', methods=['GET','POST'])
+def add_event_process():
+    if session.get('username')!=None:
+        username = session['username']
+        event_name = request.form['event_name']
+        event_description = request.form['event_description']
+        event_date = request.form['event_date']
+        event_time = request.form['event_time']
+        group_name = request.form['group_name']
+        group_creator = request.form['group_creator']
+        event_datetime = datetime.datetime.strptime(event_date + " " + event_time,"%Y-%m-%d %H:%M")
+        
+        cursor = conn.cursor()
+        ins='INSERT INTO Event(eName, eDesc, eDate, gName, gCreator) VALUES(%s,%s,%s,%s,%s)'
+        cursor.execute(ins,(event_name,event_description,event_datetime, group_name,group_creator))
+        message_join = "New event created"
+
+        ### We need to somehow maybe?? grab eID to make that the next part runs for this function
+        #Fetching the info
+        ins='SELECT * FROM EVENT WHERE eName=%s, eDesc=%s, eDate=%s, gName=%s, gCreator=%s'
+        cursor.execute(ins,(event_name,event_description,event_datetime, group_name,group_creator))
+        Eventdata = cursor.fetchall()
+        print(Eventdata)
+        conn.commit()
+        return render_template('viewoneevent.html', Eventdata=Eventdata, message_join=message_join)
+    else:
+        return render_template('login.html')
+
+@app.route('/joineventprocess', methods=['GET','POST'])
+def join_event_process():
+    if session.get('username')!=None:
+        username = session['username']
+        event_ID = request.form['event_ID']
+        event_response = request.form['event_response']
+        cursor = conn.cursor()
+        
+        #Check if already part of the group, needs fix!  
+        # ins='SELECT COUNT(*) AS size FROM GroupMembership JOIN Event WHERE eID=%s AND memberName=%s'
+        ins='SELECT * FROM GroupMembership JOIN Event WHERE eID=%s AND memberName=%s'
+        cursor.execute(ins,(event_ID, username))
+        data = cursor.fetchone()
+        print(data)
+        if data['size'] == 0:
+            message_join = "Sorry this event is restricted to members only"
+        else:
+            q='INSERT INTO RSVP(userName, eID, response) VALUES(%s,%s,%s)'
+            cursor.execute(q,(username,event_ID,event_response))
+            message_join = "Your response to the event is " + event_response
+        #Fetching the info
+        ins='SELECT * FROM EVENT WHERE eID=%s'
+        cursor.execute(ins,(event_ID))
+        Eventdata = cursor.fetchone()
+        print(Eventdata)
+        conn.commit()
+        return render_template('viewoneevent.html', Eventdata=Eventdata, message_join=message_join)
+    else:
+        return render_template('login.html')
+
 
 @app.route('/viewrecipes')
 def viewrecipes():
@@ -369,18 +520,65 @@ def viewonerecipe():
     ins='SELECT * FROM RecipeIngredient WHERE recipeID=%s'
     cursor.execute(ins,(recipeID))
     RecipeIngredientdata = cursor.fetchall()
+    # RecipeIngredientStr = ' '.join([' '.join([RecipeIngredientdata[i]['amount'], RecipeIngredientdata[i]['unitName'], RecipeIngredientdata[i]['iName']])  for i in range(len(RecipeIngredientdata))])
+    RecipeIngredientList = [] 
+    for i in range(len(RecipeIngredientdata)):
+        RecipeIngredientList.append(" ".join([str(RecipeIngredientdata[i]['amount']), RecipeIngredientdata[i]['unitName'], RecipeIngredientdata[i]['iName']]))
+    if len(RecipeIngredientList) > 0 :
+        RecipeIngredientStr = ', '.join(RecipeIngredientList)
+    else:
+        RecipeIngredientStr = 'No ingredients provided'
     ins='SELECT * FROM Step WHERE recipeID=%s'
     cursor.execute(ins,(recipeID))
     Stepdata = cursor.fetchall()
-    ins='SELECT * FROM RecipeTag WHERE recipeID=%s'
+    StepList = []
+    for i in range(len(Stepdata)):
+        # in database steps starts at 0, so added 1
+        StepList.append(". ".join([str(Stepdata[i]['stepNo'] + 1), Stepdata[i]['sDesc']]))
+    if len(StepList) > 0 :
+        StepStr = '\n'.join(StepList)
+    else:
+        StepStr = 'No steps provided'
+    ins='SELECT tagText FROM RecipeTag WHERE recipeID=%s'
     cursor.execute(ins,(recipeID))
     Tagdata = cursor.fetchall()
+    TagList = [Tagdata[i]['tagText'] for i in range(len(Tagdata))]
+    if len(TagList) > 0:
+        TagStr = ', '.join(TagList)
+    else:
+        TagStr = 'None provided'
     ins='SELECT * FROM Review WHERE recipeID=%s'
     cursor.execute(ins,(recipeID))
     ReviewData = cursor.fetchall()
-
-
-    return render_template('viewonerecipe.html',Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientdata,Stepdata=Stepdata,Tagdata=Tagdata,recipeID=recipeID,ReviewData=ReviewData)
+    if ReviewData == None :
+        NumReviews = 0
+    else:
+        NumReviews = len(ReviewData)
+    ins='SELECT pictureURL FROM RecipePicture WHERE recipeID=%s'
+    cursor.execute(ins,(recipeID))
+    RecipePicturedata = cursor.fetchall()
+    ins='SELECT pictureURL FROM ReviewPicture WHERE recipeID=%s'
+    cursor.execute(ins,(recipeID))
+    ReviewPicturedata = cursor.fetchall()
+    TestingImage = os.path.join(app.config['UPLOAD_FOLDER_RECIPE'], '20.jpeg')
+    if (len(RecipePicturedata) > 0) and (len(ReviewPictureURL) > 0):
+        # ImageURL = os.path.join(app.config['UPLOAD_FOLDER_RECIPE'], Imagedata[0]['pictureURL'])
+        RecipePictureURL = RecipePicturedata[0]['pictureURL']
+        ReviewPictureURL = ReviewPicturedata[0]['pictureURL']
+        print(RecipePictureURL)
+        print(RecipePictureURL)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL, ReviewPictureURL = ReviewPictureURL)
+    elif len(RecipePicturedata) > 0:
+        RecipePictureURL = RecipePicturedata[0]['pictureURL']
+        print(RecipePictureURL)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL)
+    elif len(RecipePicturedata) > 0:
+        ReviewPictureURL = ReviewPicturedata[0]['pictureURL']
+        print(RecipePictureURL)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,ReviewPictureURL=ReviewPictureURL)
+    else: 
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData, TestingImage= TestingImage)
+    # return render_template('viewonerecipe.html',Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientdata,Stepdata=Stepdata,Tagdata=Tagdata,recipeID=recipeID,ReviewData=ReviewData)
 
 @app.route('/explore', methods=['GET','POST'])
 def exploreRecipes():
@@ -409,7 +607,6 @@ def exploreRecipes():
     data = cursor.fetchall()
     print(len(data))
     return render_template('explore.html',data=data,len=len(data))
-
 
 @app.route('/logout')
 # To log out of the application, simply pop ‘username’ from the session store.
