@@ -44,49 +44,11 @@
 					  <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
 						<div class="card border-0 shadow rounded-3 my-5">
 						  <div class="card-body p-4 p-sm-5">
-							<h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Details about {{Recipedata[0].title}}</h5>
+							<h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Details about Group {{GroupName}}</h5>
                             <img src="{{ TestingImage }}" alt="Mike" height="240px" width="300px"></center>
-                            
-                            {% if image %}
-                                <img src="{{ RecipePictureURL }}" alt="Mike" height="240px" width="300px"></center>
-                            {% endif %}
-                            <p style="color: black;text-align: right;"> posted by {{Recipedata[0].postedBy}} </p>
-                            <p style="color: black;text-align: left;"> Recipe id: {{Recipedata[0].recipeID}} </p>
-                            <p style="color: black;text-align: left;"> Number of servings: {{Recipedata[0].numServings}} </p>
-                            <p style="color: black;text-align: left;"> Tags: {{Tagdata}}</p>
-							<p style="color: black;text-align: left;"> Ingredients: {{RecipeIngredientdata}}</p>
-							<p style="color: black;text-align: left;"> Please follow the steps below:</p>
-                            <p style="color: black;text-align: left;"> {{Stepdata}}</p>
-							
-						  </div>
-						</div>
-					  </div>
-					</div>
-				  </div>
-                  <div class="container">
-					<div class="row">
-					  <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
-						<div class="card border-0 shadow rounded-3 my-5">
-						  <div class="card-body p-4 p-sm-5">
-							<h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Reviews about {{Recipedata[0].title}}</h5>
-			
-                            <form action="/addreview?r={{recipeID}}" method="POST">
-					        <button class="btn btn-primary btn-login text-uppercase fw-bold" type="submit">Add Review</button>
-                            <ol style="color: black;text-align: left;">
-                            
-                            <!-- For loop logic of jinja template -->
-                            {%for i in range(0, NumReview)%}
-                                <li>
-                                    By {{ReviewData[i].userName}} {{ReviewData[i].stars}} stars:  {{ReviewData[i].revTitle}} {{ReviewData[i].revDesc}} 
-                                    {% if image %}
-                                        <img src="{{ ReviewPictureURL }}" alt="Mike" height="240px" width="300px"></center>
-                                    {% endif %}
-                                </li>
-                            {%endfor%}
-                            </ol>							
-                            
-                            
-                            </form>
+                        
+                            <p style="color: black;text-align: right;"> created by {{GCreator}} </p>
+                            <p style="color: black;text-align: left;"> {{GroupDescription}} </p>
 						  </div>
 						</div>
 					  </div>
