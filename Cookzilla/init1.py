@@ -500,7 +500,6 @@ def join_event_process():
     else:
         return render_template('login.html')
 
-
 # def viewrecipes():
 #     cursor = conn.cursor()
 #     ins='SELECT * FROM Recipe'
