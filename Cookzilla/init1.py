@@ -528,8 +528,8 @@ def publishreview():
         cursor = conn.cursor()
 
         print(request.args)
-        qs="SELECT userName from Review WHERE recipeID=%s"
-        cursor.execute(qs,(recipeID))
+        qs="SELECT userName from Review WHERE recipeID=%s AND userName=%s"
+        cursor.execute(qs,(recipeID,username))
         data = cursor.fetchall()
         if len(data)!=0:
             flash("You can only post once")  
