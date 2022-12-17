@@ -487,17 +487,13 @@ def join_event_process():
     else:
         return render_template('login.html')
 
-
-@app.route('/viewrecipes')
-def viewrecipes():
-    cursor = conn.cursor()
-    ins='SELECT * FROM Recipe'
-    cursor.execute(ins)
-    data = cursor.fetchall()
-    print(len(data))
-    return render_template('viewrecipe.html',data=data,len=len(data))
-
-
+# def viewrecipes():
+#     cursor = conn.cursor()
+#     ins='SELECT * FROM Recipe'
+#     cursor.execute(ins)
+#     data = cursor.fetchall()
+#     print(len(data))
+#     return render_template('viewrecipe.html',data=data,len=len(data))
 
 @app.route('/addreview', methods=['GET','POST'])
 def addreview():
@@ -625,16 +621,15 @@ def viewonerecipe():
     else: 
         return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData)
 
+@app.route('/viewrecipes')
 @app.route('/explore', methods=['GET','POST'])
 def exploreRecipes():
     keysDict=dict(request.form)
     errorMsg=""
-    print("before modifaction",keysDict)
     if keysDict.keys() >= {'tags'} and len(keysDict['tags'])==0:
         del keysDict['tags']
     if keysDict.keys() >= {'stars'} and len(keysDict['stars'])==0:
         del keysDict['stars']
-    print("after modification",keysDict)
     if 'rName' in keysDict.keys():
         cursor = conn.cursor()
         recipeName=keysDict['rName']
@@ -679,7 +674,7 @@ def exploreRecipes():
     elif keysDict.keys() == {'stars'}:
         cursor = conn.cursor()
         stars=keysDict['stars']
-        ins='SELECT recipeID from review where stars > %s'
+        ins='SELECT * FROM Recipe NATURAL JOIN recipetag NATURAL JOIN review where stars >%s GROUP BY recipeId'
         args=[stars]
         cursor.execute(ins,args)
     elif keysDict.keys() >= {'tags'} and not(keysDict.keys() >= {'tagOperation'}):
@@ -705,9 +700,12 @@ def exploreRecipes():
     if(errorMsg!=""):
         return render_template('explore.html',errorMsg=errorMsg)
     data = cursor.fetchall()
-    # print(len(data))
-    return render_template('explore.html',data=data,len=len(data))
-
+    numRows=len(data)
+    if(numRows>0):
+        return render_template('explore.html',data=data,len=numRows)
+    else:
+        errorMsg="No recipe found for your search criteria."
+        return render_template('explore.html',errorMsg=errorMsg)
 @app.route('/logout')
 # To log out of the application, simply pop ‘username’ from the session store.
 # Note that if the user presses the back button on the browser or manually types in
