@@ -1,9 +1,7 @@
 from flask import Flask
 
-#UPLOAD_FOLDER = '/Users/domaghale_1/Downloads/FlaskDemoSpr2020/FlaskDemoPhotos'
-UPLOAD_FOLDER_RECIPE = 'uploads/recipe'
-UPLOAD_FOLDER_REVIEW = 'uploads/review'
-
+UPLOAD_FOLDER_RECIPE = 'static/uploads/recipe'
+UPLOAD_FOLDER_REVIEW = 'static/uploads/review'
 
 app = Flask(__name__)
 app.secret_key = "secret key"
