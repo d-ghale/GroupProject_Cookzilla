@@ -448,15 +448,16 @@ def add_event_process():
             cursor.execute(q,(event_name,event_description,event_datetime, group_name,group_creator))
             message_join = "New event created!!!"
 
-            ### We need to somehow maybe?? grab eID to make that the next part run for this function
-            # #Fetching the info
-            # ins1='SELECT * FROM Event WHERE eName=%s, eDesc=%s, eDate=%s, gName=%s, gCreator=%s'
-            # cursor.execute(ins1,(event_name,event_description,event_datetime, group_name,group_creator))
-            # Eventdata = cursor.fetchall()
-            # print(Eventdata)
+            ## We need to somehow maybe?? grab eID to make that the next part run for this function
+            #Fetching the info
+            ins1='SELECT * FROM Event WHERE eName=%s AND eDesc=%s AND  eDate=%s AND gName=%s AND gCreator=%s'
+            cursor.execute(ins1,(event_name,event_description,event_datetime, group_name,group_creator))
+            Eventdata = cursor.fetchall()
+            print(Eventdata)
+
             conn.commit()
-            return render_template('viewoneevent.html', message_join=message_join)
-            # return render_template('viewoneevent.html', Eventdata=Eventdata, message_join=message_join)
+            # return render_template('viewoneevent.html', message_join=message_join)
+            return render_template('viewoneevent.html', Eventdata=Eventdata, message_join=message_join)
     else:
         return render_template('login.html')
 
