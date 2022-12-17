@@ -23,7 +23,7 @@
     <!-- Navigation-->
     <nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-top" id="mainNav">
         <div class="container">
-            <a class="navbar-brand" href="">Start Cooking</a>
+            <a class="navbar-brand" href="/home">Start Cooking</a>
             <button class="navbar-toggler text-uppercase font-weight-bold bg-primary text-white rounded" type="button"
                 data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive"
                 aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,9 @@
                     </div>
                     <li class="nav-item mx-0 mx-lg-1" id="searchFilter" style="display:flex;align-items:center"><i
                             class="fa-solid fa-filter fa-2x" style="color: white;" id="searchFilter"></i></li>
+                    
+                    <li class="nav-item mx-0 mx-lg-1" id="findUsers" style="display:flex;align-items:center"><i
+                         class="fas fa-user-friends fa-2x" style="color: white;" id="findUsers"></i></li>
 
                     <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded"
                             href="/viewrecipes">View Recipes</a></li>
@@ -58,10 +61,10 @@
     <div class="filterModel">
         <!-- Modal content -->
         <div class="modal-content">
-            <span class="close">&times;</span>
             <div class="topnav">
-                <h2>filter options</h2>
+                
                 <div class="search-container nav-item mx-0 mx-lg-1">
+                    <h2>filter options <span class="close">&times;</span></h2>
                     <form action="/explore" method="POST">
                         <div>
                             <input type="radio" id="andTags" name="tagOperation" value="AND">
@@ -78,6 +81,22 @@
                             <label for="tagsOrStars">match recipes either specified tags or stars</label><br>
                         </div>
                         <button type="submit">Filter</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="findUserModel">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div class="topnav">
+                <div class="search-container nav-item mx-0 mx-lg-1">
+                    <h2>Search Users Similar to Your Ratings for recipes with: <span class="close">&times;</span></h2>
+                    <form action="/findusers" method="POST">
+                        <input type="text" class="form-control" placeholder="Tag" name="tag">
+                        <input type="text" class="form-control" placeholder="Ingredient" name="ingredient">
+                        <input type="text" class="form-control" placeholder="Recipe Name" name="rname">
+                        <button type="submit">Find</button>
                     </form>
                 </div>
             </div>
@@ -170,6 +189,31 @@
         window.onclick = function (event) {
             if (event.target == modal) {
                 modal.style.display = "none";
+            }
+        }
+
+        var modal2 = document.getElementsByClassName("findUserModel")[0];
+
+        // Get the button that opens the modal
+        var btn2 = document.getElementById("findUsers");
+
+        // Get the <span> element that closes the modal
+        var span2 = document.getElementsByClassName("close")[1];
+
+        // When the user clicks the button, open the modal 
+        btn2.onclick = function () {
+            modal2.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span2.onclick = function () {
+            modal2.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == modal2) {
+                modal2.style.display = "none";
             }
         }
     </script>
