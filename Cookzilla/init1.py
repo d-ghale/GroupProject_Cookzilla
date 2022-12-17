@@ -19,7 +19,7 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ##app = Flask(__name__)
 ##app.secret_key = "secret key"
 # This sets the configuration to connect to your MySQL database
-#Configure MySQL
+# #Configure MySQL
 conn = pymysql.connect(host='localhost',
                        port = 3306,
                        user='root',
@@ -27,7 +27,7 @@ conn = pymysql.connect(host='localhost',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
-### Doma's conn below
+## Doma's conn below
 # conn = pymysql.connect(host='localhost',
 #                        port = 8889,
 #                        user='root',
@@ -390,7 +390,7 @@ def join_group_process():
         if data == 0:
             q='INSERT INTO GroupMembership(memberName, gName, gCreator) VALUES(%s,%s,%s)'
             cursor.execute(q,(username,group_name,group_creator))
-            message_join = "You are not added to the group"
+            message_join = "You are now added to the group"
         else:
             message_join = "You were already part of the group"
         #Fetching the info
@@ -420,16 +420,27 @@ def add_event_process():
         event_datetime = datetime.datetime.strptime(event_date + " " + event_time,"%Y-%m-%d %H:%M")
         
         cursor = conn.cursor()
-        ins='INSERT INTO Event(eName, eDesc, eDate, gName, gCreator) VALUES(%s,%s,%s,%s,%s)'
-        cursor.execute(ins,(event_name,event_description,event_datetime, group_name,group_creator))
-        message_join = "New event created"
+        # User has to be part of the group to create an event
+        
+        ins='SELECT * FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName=%s'
+        cursor.execute(ins,(group_name, group_creator, username))
+        data = cursor.fetchone()
+        print(data)
+        if data == None:
+        #data['size'] == 0:
+            message_join = "Sorry you cannot create an event for a group you are not a member of!!!"
+            return render_template('home.html', message_join=message_join)
+        else:
+            ins='INSERT INTO Event(eName, eDesc, eDate, gName, gCreator) VALUES(%s,%s,%s,%s,%s)'
+            cursor.execute(ins,(event_name,event_description,event_datetime, group_name,group_creator))
+            message_join = "New event created!!!"
 
-        ### We need to somehow maybe?? grab eID to make that the next part runs for this function
-        #Fetching the info
-        ins='SELECT * FROM EVENT WHERE eName=%s, eDesc=%s, eDate=%s, gName=%s, gCreator=%s'
-        cursor.execute(ins,(event_name,event_description,event_datetime, group_name,group_creator))
-        Eventdata = cursor.fetchall()
-        print(Eventdata)
+            ### We need to somehow maybe?? grab eID to make that the next part runs for this function
+            #Fetching the info
+            ins='SELECT * FROM EVENT WHERE eName=%s, eDesc=%s, eDate=%s, gName=%s, gCreator=%s'
+            cursor.execute(ins,(event_name,event_description,event_datetime, group_name,group_creator))
+            Eventdata = cursor.fetchall()
+            print(Eventdata)
         conn.commit()
         return render_template('viewoneevent.html', Eventdata=Eventdata, message_join=message_join)
     else:
@@ -449,7 +460,8 @@ def join_event_process():
         cursor.execute(ins,(event_ID, username))
         data = cursor.fetchone()
         print(data)
-        if data['size'] == 0:
+        # if data['size'] == 0:
+        if data == None:
             message_join = "Sorry this event is restricted to members only"
         else:
             q='INSERT INTO RSVP(userName, eID, response) VALUES(%s,%s,%s)'
@@ -463,7 +475,7 @@ def join_event_process():
         conn.commit()
         return render_template('viewoneevent.html', Eventdata=Eventdata, message_join=message_join)
     else:
-        return render_template('login.html')
+        return render_template('home.html')
 
 
 @app.route('/viewrecipes')
@@ -585,25 +597,23 @@ def viewonerecipe():
     ins='SELECT pictureURL FROM ReviewPicture WHERE recipeID=%s'
     cursor.execute(ins,(recipeID))
     ReviewPicturedata = cursor.fetchall()
-    TestingImage = os.path.join(app.config['UPLOAD_FOLDER_RECIPE'], '20.jpeg')
-    if (len(RecipePicturedata) > 0) and (len(ReviewPictureURL) > 0):
-        # ImageURL = os.path.join(app.config['UPLOAD_FOLDER_RECIPE'], Imagedata[0]['pictureURL'])
-        RecipePictureURL = RecipePicturedata[0]['pictureURL']
-        ReviewPictureURL = ReviewPicturedata[0]['pictureURL']
+    
+    if (len(RecipePicturedata) > 0) and (len(ReviewPicturedata) > 0):
+        RecipePictureURL = "../" +RecipePicturedata[0]['pictureURL']
+        ReviewPictureURL = "../" +ReviewPicturedata[0]['pictureURL']
         print(RecipePictureURL)
         print(RecipePictureURL)
-        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL, ReviewPictureURL = ReviewPictureURL)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL, ReviewPictureURL = ReviewPictureURL, TestingImage= TestingImage)
     elif len(RecipePicturedata) > 0:
-        RecipePictureURL = RecipePicturedata[0]['pictureURL']
+        RecipePictureURL = "../" +RecipePicturedata[0]['pictureURL']
         print(RecipePictureURL)
-        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL, TestingImage= TestingImage)
     elif len(RecipePicturedata) > 0:
-        ReviewPictureURL = ReviewPicturedata[0]['pictureURL']
+        ReviewPictureURL = "../" +ReviewPicturedata[0]['pictureURL']
         print(RecipePictureURL)
-        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,ReviewPictureURL=ReviewPictureURL)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,ReviewPictureURL=ReviewPictureURL, TestingImage= TestingImage)
     else: 
         return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData, TestingImage= TestingImage)
-    # return render_template('viewonerecipe.html',Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientdata,Stepdata=Stepdata,Tagdata=Tagdata,recipeID=recipeID,ReviewData=ReviewData)
 
 @app.route('/explore', methods=['GET','POST'])
 def exploreRecipes():

@@ -45,11 +45,11 @@
 						<div class="card border-0 shadow rounded-3 my-5">
 						  <div class="card-body p-4 p-sm-5">
 							<h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Details about {{Recipedata[0].title}}</h5>
-                            <img src="{{ TestingImage }}" alt="Mike" height="240px" width="300px"></center>
-                            
-                            {% if image %}
+                        
+                            {% if RecipePictureURL %}
                                 <img src="{{ RecipePictureURL }}" alt="Mike" height="240px" width="300px"></center>
                             {% endif %}
+
                             <p style="color: black;text-align: right;"> posted by {{Recipedata[0].postedBy}} </p>
                             <p style="color: black;text-align: left;"> Recipe id: {{Recipedata[0].recipeID}} </p>
                             <p style="color: black;text-align: left;"> Number of servings: {{Recipedata[0].numServings}} </p>
@@ -57,7 +57,7 @@
 							<p style="color: black;text-align: left;"> Ingredients: {{RecipeIngredientdata}}</p>
 							<p style="color: black;text-align: left;"> Please follow the steps below:</p>
                             <p style="color: black;text-align: left;"> {{Stepdata}}</p>
-							
+                          
 						  </div>
 						</div>
 					  </div>
@@ -78,9 +78,11 @@
                             {%for i in range(0, NumReview)%}
                                 <li>
                                     By {{ReviewData[i].userName}} {{ReviewData[i].stars}} stars:  {{ReviewData[i].revTitle}} {{ReviewData[i].revDesc}} 
-                                    {% if image %}
+                                            
+                                    {% if RecipePictureURL %}
                                         <img src="{{ ReviewPictureURL }}" alt="Mike" height="240px" width="300px"></center>
                                     {% endif %}
+                        
                                 </li>
                             {%endfor%}
                             </ol>							
