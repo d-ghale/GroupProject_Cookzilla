@@ -112,6 +112,7 @@ def loginAuth():
         #creates a session for the the user
         #session is a built in
         session['username'] = username
+        
         return redirect(url_for('home'))
     else:
         #returns an error message to the html page
@@ -162,6 +163,13 @@ def registerAuth():
         return render_template('index.html')
 
 
+def recentlyviewed():
+    cursor = conn.cursor()
+    query = 'SELECT * FROM Recipe JOIN UserLog ON Recipe.recipeID=UserLog.recipeID WHERE userName = %s ORDER BY logtime DESC LIMIT 5'
+    cursor.execute(query, (user))
+    data = cursor.fetchall()
+    return data
+
 @app.route('/home')
 def home():
     if session.get('username')!=None:
@@ -170,14 +178,10 @@ def home():
         
 
 
-        cursor = conn.cursor()
-        query = 'SELECT * FROM Recipe JOIN UserLog ON Recipe.recipeID=UserLog.recipeID WHERE userName = %s ORDER BY logtime DESC LIMIT 5'
-        cursor.execute(query, (user))
-        data = cursor.fetchall()
+        
         
 
-    
-    # [[{'recipeID': 3, 'title': 'testw', 'numServings': 2, 'postedBy': 'therealbappi'}], [{'recipeID': 1, 'title': 'Biryani', 'numServings': 3, 'postedBy': 'therealbappi'}]]
+        data=recentlyviewed()
         # # We want to allow the user to be able to post and see their posts on the front page. 
         # # We call fetchall() and pass it into the home.html page.
         # print(list(set(data)))
@@ -298,8 +302,8 @@ def addsteps():
     print("step done")
 
     
-
-    return render_template('home.html',username=session['username'])
+    data=recentlyviewed()
+    return render_template('home.html',username=session['username'],data=data, len=len(data))
 
 
 @app.route('/addrecipeprocess', methods=['GET','POST'])
@@ -396,7 +400,8 @@ def join_group_process():
         if GroupExist == None:
             conn.commit()
             message_join = f"Please create the group {group_name} first as it doesn't"
-            return render_template('home.html', message_join=message_join)
+            data=recentlyviewed()
+            return render_template('home.html', message_join=message_join,data=data,len=len(data))
         else: 
             #Check if already part of the group
             ins='SELECT COUNT(*) FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName=%s'
@@ -445,7 +450,8 @@ def add_event_process():
         if data == None:
         #data['size'] == 0:
             message_join = "Sorry you cannot create an event for a group you are not a member of!!!"
-            return render_template('home.html', message_join=message_join)
+            rdata=recentlyviewed()
+            return render_template('home.html', message_join=message_join,data=rdata,len=len(rdata))
         else:
             ins='INSERT INTO Event(eName, eDesc, eDate, gName, gCreator) VALUES(%s,%s,%s,%s,%s)'
             cursor.execute(ins,(event_name,event_description,event_datetime, group_name,group_creator))
@@ -550,8 +556,8 @@ def publishreview():
             conn.commit()
         
 
-
-            return render_template('home.html',username=username)
+            data=recentlyviewed()
+            return render_template('home.html',username=username,data=data,len=len(data))
     else:
         return render_template('login.html')
 
