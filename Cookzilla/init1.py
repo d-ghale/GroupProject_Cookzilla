@@ -20,21 +20,21 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ##app.secret_key = "secret key"
 # This sets the configuration to connect to your MySQL database
 #Configure MySQL
-conn = pymysql.connect(host='localhost',
-                       port = 3306,
-                       user='root',
-                       password='',
-                       db='Test',
-                       charset='utf8mb4',
-                       cursorclass=pymysql.cursors.DictCursor)
-# ## Doma's conn below
 # conn = pymysql.connect(host='localhost',
-#                        port = 8889,
+#                        port = 3306,
 #                        user='root',
-#                        password='root',
+#                        password='',
 #                        db='Test',
 #                        charset='utf8mb4',
 #                        cursorclass=pymysql.cursors.DictCursor)
+# ## Doma's conn below
+conn = pymysql.connect(host='localhost',
+                       port = 8889,
+                       user='root',
+                       password='root',
+                       db='Test',
+                       charset='utf8mb4',
+                       cursorclass=pymysql.cursors.DictCursor)
 
 
 def allowed_file(filename):
@@ -486,10 +486,20 @@ def join_event_process():
             message_join = "Sorry this event is restricted to members only"
             return render_template('viewoneevent.html', message_join=message_join)
         else:
-            ins='INSERT INTO RSVP(userName, eID, response) VALUES(%s,%s,%s)'
-            cursor.execute(ins,(username,event_ID,event_response))
-            message_join = "Your response to the event is " + event_response
-            
+            #check if already RSVPed
+            ins_checkRSVP = 'SELECT * FROM RSVP WHERE eID=%s AND userName=%s'
+            cursor.execute(ins_checkRSVP,(event_ID, username))
+            RSVP_history = cursor.fetchone()
+            print(RSVP_history)
+            if RSVP_history == None:
+                ins='INSERT INTO RSVP(userName, eID, response) VALUES(%s,%s,%s)'
+                cursor.execute(ins,(username,event_ID,event_response))
+                message_join = "Your response to the event is " + event_response
+            else:
+                #Update with new respose if already RSVPed
+                ins_updateRSVP = 'UPDATE RSVP SET response=%s WHERE eID=%s AND userName=%s'
+                cursor.execute(ins_updateRSVP,(event_response,event_ID,username))
+                message_join = "Your response to the event is updated as " + event_response
             #Fetching the info
             ins1='SELECT * FROM EVENT WHERE eID=%s'
             cursor.execute(ins1,(event_ID))

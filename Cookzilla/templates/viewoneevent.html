@@ -44,14 +44,9 @@
 						  <div class="card-body p-4 p-sm-5">
                             <p style="color: black;"> {{message_join}}!!! </p>
                             {% if Eventdata %} 
-                                {%for i in range(0, Eventdata|length)%}
-                                    <li>
-                                        <h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Details about Event {{Eventdata[i].eName}}</h5>
-                                        <p style="color: black;text-align: right;"> This event will be held on  {{Eventdata[i].eDate}}, and is exclusive to Group {{Eventdata[i].gName}} created by {{Eventdata[i].gCreator}} </p>
-                                        <p style="color: black;text-align: left;"> {{Eventdata[i].eDesc}} </p>
-                                    </li>
-                                {%endfor%}
-                                
+                                    <h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Details about Event {{Eventdata.eName}}</h5>
+                                    <p style="color: black;text-align: right;"> This event will be held on  {{Eventdata.eDate}}, and is exclusive to Group {{Eventdata.gName}} created by {{Eventdata.gCreator}} </p>
+                                    <p style="color: black;text-align: left;"> {{Eventdata.eDesc}} </p>                                
                             {% endif %}
                             
 						  </div>
