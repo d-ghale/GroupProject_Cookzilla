@@ -501,14 +501,13 @@ def join_event_process():
         return render_template('login.html')
 
 
-@app.route('/viewrecipes')
-def viewrecipes():
-    cursor = conn.cursor()
-    ins='SELECT * FROM Recipe'
-    cursor.execute(ins)
-    data = cursor.fetchall()
-    print(len(data))
-    return render_template('viewrecipe.html',data=data,len=len(data))
+# def viewrecipes():
+#     cursor = conn.cursor()
+#     ins='SELECT * FROM Recipe'
+#     cursor.execute(ins)
+#     data = cursor.fetchall()
+#     print(len(data))
+#     return render_template('viewrecipe.html',data=data,len=len(data))
 
 @app.route('/addreview', methods=['GET','POST'])
 def addreview():
@@ -636,6 +635,7 @@ def viewonerecipe():
     else: 
         return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData)
 
+@app.route('/viewrecipes')
 @app.route('/explore', methods=['GET','POST'])
 def exploreRecipes():
     if 'rName' in request.form.keys():
