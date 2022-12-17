@@ -75,6 +75,27 @@
         
         <!-- Portfolio Section-->
       
+        <header class="masthead bg-primary text-white text-center">
+            <div class="container d-flex align-items-center flex-column">
+							<h1 style="color: black;">Recently Viewed </h1>
+
+                {%for i in range(0, len)%}
+                  <div class="card" style="width: 18rem;">
+                    <!-- <img class="card-img-top" src="..." alt="Card image cap"> -->
+                    <form action="/viewonerecipe?r={{data[i].recipeID}}" method="POST">
+                        <div class="card-body">
+                        <h5 class="card-title" style="color: black;">{{data[i].title}}</h5>
+                        <p class="card-text" style="color: black;">Number of Servings: {{data[i].numServings}}, Posted By {{data[i].postedBy}}</p>
+                        <div name="recipid" value="{{data[i].recipeID}}"></div>
+                        <button class="btn btn-primary btn-login text-uppercase fw-bold" type="submit">Read More</button>
+
+                        </div>
+                        <br/>
+                        </div>
+                    </form>
+                {%endfor%}
+            </div>
+        </header>
         <!-- About Section-->
       
         <!-- Contact Section-->

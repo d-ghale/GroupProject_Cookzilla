@@ -4,7 +4,7 @@ import pymysql.cursors
 import bcrypt
 import os
 import hashlib
-
+import datetime
 #for uploading photo:
 from app import app
 #from flask import Flask, flash, request, redirect, render_template
@@ -23,7 +23,7 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 conn = pymysql.connect(host='localhost',
                        port = 3306,
                        user='root',
-                       password='',
+                       password='password',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -112,6 +112,7 @@ def loginAuth():
         #creates a session for the the user
         #session is a built in
         session['username'] = username
+        
         return redirect(url_for('home'))
     else:
         #returns an error message to the html page
@@ -161,21 +162,40 @@ def registerAuth():
         cursor.close()
         return render_template('index.html')
 
+
+def recentlyviewed():
+    cursor = conn.cursor()
+    user = session['username']
+
+    query = 'SELECT * FROM Recipe JOIN UserLog ON Recipe.recipeID=UserLog.recipeID WHERE userName = %s ORDER BY logtime DESC LIMIT 5'
+    cursor.execute(query, (user))
+    data = cursor.fetchall()
+    cursor.close()
+
+    return data
+
+
+def recentlyviewed():
+    cursor = conn.cursor()
+    user = session['username']
+
+    query = 'SELECT * FROM Recipe JOIN UserLog ON Recipe.recipeID=UserLog.recipeID WHERE userName = %s ORDER BY logtime DESC LIMIT 5'
+    cursor.execute(query, (user))
+    data = cursor.fetchall()
+    cursor.close()
+
+    return data
 @app.route('/home')
 def home():
     if session.get('username')!=None:
 
         user = session['username']
-        
-        # cursor = conn.cursor();
-        # query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
-        # cursor.execute(query, (user))
-        # data = cursor.fetchall()
         # # We want to allow the user to be able to post and see their posts on the front page. 
         # # We call fetchall() and pass it into the home.html page.
-
-        # cursor.close()
-        return render_template('home.html', username=user)
+        # print(list(set(data)))
+        
+        data=recentlyviewed()
+        return render_template('home.html', username=user,data=data, len=len(data))
     else:
         return render_template('login.html')
 
@@ -289,8 +309,8 @@ def addsteps():
     print("step done")
 
     
-
-    return render_template('home.html',username=session['username'])
+    data=recentlyviewed()
+    return render_template('home.html',username=session['username'],data=data, len=len(data))
 
 
 @app.route('/addrecipeprocess', methods=['GET','POST'])
@@ -395,7 +415,8 @@ def join_group_process():
         print(GroupExist)
         if GroupExist == None:
             message_join = f"Please create the group {group_name} first as it doesn't"
-            return render_template('home.html', message_join=message_join)
+            data=recentlyviewed()
+            return render_template('home.html', message_join=message_join,data=data,len=len(data))
         else: 
             #Check if already part of the group
             ins='SELECT * FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName=%s'
@@ -441,7 +462,8 @@ def add_event_process():
         print(data)
         if data == None:
             message_join = "Sorry you cannot create an event for a group you are not a member of!!!"
-            return render_template('home.html', message_join=message_join)
+            rdata=recentlyviewed()
+            return render_template('home.html', message_join=message_join,data=rdata,len=len(rdata))
         else:
             print("------")
             q='INSERT INTO Event(eName, eDesc, eDate, gName, gCreator) VALUES(%s,%s,%s,%s,%s)'
@@ -526,8 +548,8 @@ def publishreview():
         cursor = conn.cursor()
 
         print(request.args)
-        qs="SELECT userName from Review WHERE recipeID=%s"
-        cursor.execute(qs,(recipeID))
+        qs="SELECT userName from Review WHERE recipeID=%s AND userName=%s"
+        cursor.execute(qs,(recipeID,username))
         data = cursor.fetchall()
         if len(data)!=0:
             flash("You can only post once")  
@@ -557,8 +579,8 @@ def publishreview():
             conn.commit()
         
 
-
-            return render_template('home.html',username=username)
+            data=recentlyviewed()
+            return render_template('home.html',username=username,data=data,len=len(data))
     else:
         return render_template('login.html')
 
@@ -616,6 +638,14 @@ def viewonerecipe():
     ins='SELECT pictureURL FROM ReviewPicture WHERE recipeID=%s'
     cursor.execute(ins,(recipeID))
     ReviewPicturedata = cursor.fetchall()
+    if session.get('username')!=None:
+        username = session['username']
+
+        ins='INSERT INTO UserLog(userName,recipeID) VALUES (%s,%s)'
+        
+        cursor.execute(ins,(username,recipeID))
+        conn.commit()
+
     
     if (len(RecipePicturedata) > 0) and (len(ReviewPicturedata) > 0):
         RecipePictureURL = "../" +RecipePicturedata[0]['pictureURL']
