@@ -165,9 +165,13 @@ def registerAuth():
 
 def recentlyviewed():
     cursor = conn.cursor()
+    user = session['username']
+
     query = 'SELECT * FROM Recipe JOIN UserLog ON Recipe.recipeID=UserLog.recipeID WHERE userName = %s ORDER BY logtime DESC LIMIT 5'
     cursor.execute(query, (user))
     data = cursor.fetchall()
+    cursor.close()
+
     return data
 
 @app.route('/home')
@@ -186,7 +190,6 @@ def home():
         # # We call fetchall() and pass it into the home.html page.
         # print(list(set(data)))
         
-        cursor.close()
 
         return render_template('home.html', username=user,data=data, len=len(data))
     else:
