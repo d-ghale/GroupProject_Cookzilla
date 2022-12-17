@@ -19,7 +19,7 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ##app = Flask(__name__)
 ##app.secret_key = "secret key"
 # This sets the configuration to connect to your MySQL database
-# #Configure MySQL
+#Configure MySQL
 conn = pymysql.connect(host='localhost',
                        port = 3306,
                        user='root',
@@ -27,7 +27,7 @@ conn = pymysql.connect(host='localhost',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
-## Doma's conn below
+# ## Doma's conn below
 # conn = pymysql.connect(host='localhost',
 #                        port = 8889,
 #                        user='root',
@@ -382,26 +382,36 @@ def join_group_process():
         group_name = request.form['group_name']
         group_creator = request.form['group_creator']
         cursor = conn.cursor()
-        #Check if already part of the group
-        ins='SELECT COUNT(*) FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName=%s'
-        cursor.execute(ins,(group_name, group_creator, username))
-        data = cursor.fetchone()
-        print(data)
-        if data == 0:
-            q='INSERT INTO GroupMembership(memberName, gName, gCreator) VALUES(%s,%s,%s)'
-            cursor.execute(q,(username,group_name,group_creator))
-            message_join = "You are now added to the group"
-        else:
-            message_join = "You were already part of the group"
-        #Fetching the info
-        ins='SELECT * FROM `GROUP` WHERE gName=%s AND gCreator=%s'
+        #Check if such a group exists
+        ins='SELECT * FROM `Group` WHERE gName=%s AND gCreator=%s'
         cursor.execute(ins,(group_name, group_creator))
-        data = cursor.fetchone()
-        print(data)
-        group_description=data["gDesc"]
-        #Creating Tags for the Recipe in 
-        conn.commit()
-        return render_template('viewonegroup.html', GCreator=group_creator, GroupName=group_name, GroupDescription=group_description, message_join=message_join)
+        GroupExist = cursor.fetchone()
+        print(GroupExist)
+        if GroupExist == None:
+            conn.commit()
+            message_join = f"Please create the group {group_name} first as it doesn't"
+            return render_template('home.html', message_join=message_join)
+        else: 
+            #Check if already part of the group
+            ins='SELECT COUNT(*) FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName=%s'
+            cursor.execute(ins,(group_name, group_creator, username))
+            data = cursor.fetchone()
+            print(data)
+            if data == 0:
+                q='INSERT INTO GroupMembership(memberName, gName, gCreator) VALUES(%s,%s,%s)'
+                cursor.execute(q,(username,group_name,group_creator))
+                message_join = "You are now added to the group"
+            else:
+                message_join = "You were already part of the group"
+            #Fetching the info
+            ins='SELECT * FROM `GROUP` WHERE gName=%s AND gCreator=%s'
+            cursor.execute(ins,(group_name, group_creator))
+            data = cursor.fetchone()
+            print(data)
+            group_description=data["gDesc"]
+            #Creating Tags for the Recipe in 
+            conn.commit()
+            return render_template('viewonegroup.html', GCreator=group_creator, GroupName=group_name, GroupDescription=group_description, message_join=message_join)
     else:
         return render_template('login.html')
 
@@ -475,7 +485,7 @@ def join_event_process():
         conn.commit()
         return render_template('viewoneevent.html', Eventdata=Eventdata, message_join=message_join)
     else:
-        return render_template('home.html')
+        return render_template('login.html')
 
 
 @app.route('/viewrecipes')
@@ -603,17 +613,17 @@ def viewonerecipe():
         ReviewPictureURL = "../" +ReviewPicturedata[0]['pictureURL']
         print(RecipePictureURL)
         print(RecipePictureURL)
-        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL, ReviewPictureURL = ReviewPictureURL, TestingImage= TestingImage)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL, ReviewPictureURL = ReviewPictureURL)
     elif len(RecipePicturedata) > 0:
         RecipePictureURL = "../" +RecipePicturedata[0]['pictureURL']
         print(RecipePictureURL)
-        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL, TestingImage= TestingImage)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL)
     elif len(RecipePicturedata) > 0:
         ReviewPictureURL = "../" +ReviewPicturedata[0]['pictureURL']
         print(RecipePictureURL)
-        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,ReviewPictureURL=ReviewPictureURL, TestingImage= TestingImage)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,ReviewPictureURL=ReviewPictureURL)
     else: 
-        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData, TestingImage= TestingImage)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData)
 
 @app.route('/explore', methods=['GET','POST'])
 def exploreRecipes():
