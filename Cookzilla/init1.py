@@ -161,15 +161,12 @@ def registerAuth():
         cursor.close()
         return render_template('index.html')
 
-
 @app.route('/home')
 def home():
     if session.get('username')!=None:
 
         user = session['username']
         
-
-
         # cursor = conn.cursor();
         # query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
         # cursor.execute(query, (user))
@@ -365,13 +362,22 @@ def add_group_process():
         group_name = request.form['group_name']
         group_description = request.form['group_description']
         cursor = conn.cursor()
-        ins='INSERT INTO `Group`(gName, gCreator, gDesc) VALUES(%s,%s,%s)'
-        cursor.execute(ins,(group_name,username,group_description))
-
-        q='INSERT INTO GroupMembership( memberName, gName, gCreator) VALUES(%s,%s,%s)'
-        cursor.execute(q,(username,group_name,username))
-        conn.commit()
-        return render_template('viewonegroup.html', GCreator = username, GroupName = group_name, GroupDescription=group_description)
+        #Display message saying group already exists if same creator and same Group name
+        ins_check='SELECT * FROM `Group` WHERE gName=%s AND gCreator=%s'
+        cursor.execute(ins_check,(group_name, username))
+        GroupExist = cursor.fetchone()
+        print(GroupExist)
+        if GroupExist == None:
+            ins='INSERT INTO `Group`(gName, gCreator, gDesc) VALUES(%s,%s,%s)'
+            cursor.execute(ins,(group_name,username,group_description))
+            q='INSERT INTO GroupMembership( memberName, gName, gCreator) VALUES(%s,%s,%s)'
+            cursor.execute(q,(username,group_name,username))
+            message_join = "New group created!!!"
+            conn.commit()
+            return render_template('viewonegroup.html', GCreator = username, GroupName = group_name, GroupDescription=group_description,message_join=message_join)
+        else:
+            message_join = "You previously created a group with same name, so cannot recreate!!!"
+            return render_template('home.html', message_join=message_join)
     else:
         return render_template('login.html')
 
@@ -383,33 +389,31 @@ def join_group_process():
         group_creator = request.form['group_creator']
         cursor = conn.cursor()
         #Check if such a group exists
-        ins='SELECT * FROM `Group` WHERE gName=%s AND gCreator=%s'
-        cursor.execute(ins,(group_name, group_creator))
+        ins_check='SELECT * FROM `Group` WHERE gName=%s AND gCreator=%s'
+        cursor.execute(ins_check,(group_name, group_creator))
         GroupExist = cursor.fetchone()
         print(GroupExist)
         if GroupExist == None:
-            conn.commit()
             message_join = f"Please create the group {group_name} first as it doesn't"
             return render_template('home.html', message_join=message_join)
         else: 
             #Check if already part of the group
-            ins='SELECT COUNT(*) FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName=%s'
+            ins='SELECT * FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName=%s'
             cursor.execute(ins,(group_name, group_creator, username))
             data = cursor.fetchone()
             print(data)
-            if data == 0:
+            if data == None:
                 q='INSERT INTO GroupMembership(memberName, gName, gCreator) VALUES(%s,%s,%s)'
                 cursor.execute(q,(username,group_name,group_creator))
                 message_join = "You are now added to the group"
             else:
                 message_join = "You were already part of the group"
             #Fetching the info
-            ins='SELECT * FROM `GROUP` WHERE gName=%s AND gCreator=%s'
-            cursor.execute(ins,(group_name, group_creator))
+            ins1='SELECT * FROM `GROUP` WHERE gName=%s AND gCreator=%s'
+            cursor.execute(ins1,(group_name, group_creator))
             data = cursor.fetchone()
             print(data)
             group_description=data["gDesc"]
-            #Creating Tags for the Recipe in 
             conn.commit()
             return render_template('viewonegroup.html', GCreator=group_creator, GroupName=group_name, GroupDescription=group_description, message_join=message_join)
     else:
@@ -427,32 +431,33 @@ def add_event_process():
         event_time = request.form['event_time']
         group_name = request.form['group_name']
         group_creator = request.form['group_creator']
-        event_datetime = datetime.datetime.strptime(event_date + " " + event_time,"%Y-%m-%d %H:%M")
-        
+        event_datetime = datetime.datetime.strptime(event_date + " " + event_time, "%Y-%m-%d %H:%M")
+        print(event_description)
         cursor = conn.cursor()
-        # User has to be part of the group to create an event
-        
-        ins='SELECT * FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName=%s'
-        cursor.execute(ins,(group_name, group_creator, username))
+        # User has to be part of the group to create an event  
+        ins_check='SELECT * FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName=%s'
+        cursor.execute(ins_check,(group_name, group_creator, username))
         data = cursor.fetchone()
         print(data)
         if data == None:
-        #data['size'] == 0:
             message_join = "Sorry you cannot create an event for a group you are not a member of!!!"
             return render_template('home.html', message_join=message_join)
         else:
-            ins='INSERT INTO Event(eName, eDesc, eDate, gName, gCreator) VALUES(%s,%s,%s,%s,%s)'
-            cursor.execute(ins,(event_name,event_description,event_datetime, group_name,group_creator))
+            print("------")
+            q='INSERT INTO Event(eName, eDesc, eDate, gName, gCreator) VALUES(%s,%s,%s,%s,%s)'
+            cursor.execute(q,(event_name,event_description,event_datetime, group_name,group_creator))
             message_join = "New event created!!!"
 
-            ### We need to somehow maybe?? grab eID to make that the next part runs for this function
+            ## We need to somehow maybe?? grab eID to make that the next part run for this function
             #Fetching the info
-            ins='SELECT * FROM EVENT WHERE eName=%s, eDesc=%s, eDate=%s, gName=%s, gCreator=%s'
-            cursor.execute(ins,(event_name,event_description,event_datetime, group_name,group_creator))
+            ins1='SELECT * FROM Event WHERE eName=%s AND eDesc=%s AND  eDate=%s AND gName=%s AND gCreator=%s'
+            cursor.execute(ins1,(event_name,event_description,event_datetime, group_name,group_creator))
             Eventdata = cursor.fetchall()
             print(Eventdata)
-        conn.commit()
-        return render_template('viewoneevent.html', Eventdata=Eventdata, message_join=message_join)
+
+            conn.commit()
+            # return render_template('viewoneevent.html', message_join=message_join)
+            return render_template('viewoneevent.html', Eventdata=Eventdata, message_join=message_join)
     else:
         return render_template('login.html')
 
@@ -464,26 +469,34 @@ def join_event_process():
         event_response = request.form['event_response']
         cursor = conn.cursor()
         
+        #Check if event exists
+        E_check='SELECT * FROM GroupMembership JOIN Event WHERE eID=%s'
+        cursor.execute(E_check,(event_ID))
+        E_check_data = cursor.fetchone()
+        print(E_check_data)
+        if E_check_data == None:
+            message_join = "Sorry this event doesn't exist"
+            return render_template('viewoneevent.html', message_join=message_join)
         #Check if already part of the group, needs fix!  
-        # ins='SELECT COUNT(*) AS size FROM GroupMembership JOIN Event WHERE eID=%s AND memberName=%s'
-        ins='SELECT * FROM GroupMembership JOIN Event WHERE eID=%s AND memberName=%s'
-        cursor.execute(ins,(event_ID, username))
-        data = cursor.fetchone()
-        print(data)
-        # if data['size'] == 0:
-        if data == None:
+        Member_check='SELECT * FROM GroupMembership JOIN Event WHERE eID=%s AND memberName=%s'
+        cursor.execute(Member_check,(event_ID, username))
+        Member_check_data = cursor.fetchone()
+        print(Member_check_data)
+        if Member_check_data == None:
             message_join = "Sorry this event is restricted to members only"
+            return render_template('viewoneevent.html', message_join=message_join)
         else:
-            q='INSERT INTO RSVP(userName, eID, response) VALUES(%s,%s,%s)'
-            cursor.execute(q,(username,event_ID,event_response))
+            ins='INSERT INTO RSVP(userName, eID, response) VALUES(%s,%s,%s)'
+            cursor.execute(ins,(username,event_ID,event_response))
             message_join = "Your response to the event is " + event_response
-        #Fetching the info
-        ins='SELECT * FROM EVENT WHERE eID=%s'
-        cursor.execute(ins,(event_ID))
-        Eventdata = cursor.fetchone()
-        print(Eventdata)
-        conn.commit()
-        return render_template('viewoneevent.html', Eventdata=Eventdata, message_join=message_join)
+            
+            #Fetching the info
+            ins1='SELECT * FROM EVENT WHERE eID=%s'
+            cursor.execute(ins1,(event_ID))
+            Eventdata = cursor.fetchone()
+            print(Eventdata)
+            conn.commit()
+            return render_template('viewoneevent.html', Eventdata=Eventdata, message_join=message_join)
     else:
         return render_template('login.html')
 
@@ -713,6 +726,68 @@ def findUsers():
     print(keysDict)
     errorMsg="PAGE NOT IMPLEMENTED"
     return render_template('explore.html',errorMsg=errorMsg)
+
+@app.route('/exploregroup')
+def exploregroup():
+    cursor = conn.cursor()
+    ins='SELECT * FROM `Group`'
+    cursor.execute(ins)
+    data = cursor.fetchall()
+    return render_template('explore_group.html',data=data,len=len(data))
+
+import pandas as pd
+import numpy as np
+
+@app.route('/exploreonegroup', methods=['GET','POST'])
+def exploreonegroup():
+    if session.get('username')!=None:
+        username = session['username']
+        cursor = conn.cursor()
+        group_creator=request.args['r']
+        group_name= request.args['name']
+        
+        ins='SELECT * FROM `Group` WHERE gName=%s AND gCreator=%s'
+        cursor.execute(ins,(group_name, group_creator))
+        Gdata = cursor.fetchall()
+        message_join = "Viewing group"
+        group_description = Gdata[0]['gDesc']
+        #SHOW group members 
+        ins2='SELECT * FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName!=%s'
+        cursor.execute(ins2,(group_name, group_creator, group_creator))
+        Mdata = cursor.fetchall()
+        members = ", ".join([Mdata[i]["memberName"] for i in range(len(Mdata))])
+        #SHOW events related to the group when No RSVP
+        checkEvent='SELECT * FROM Event WHERE gName=%s AND gCreator=%s'
+        cursor.execute(checkEvent,(group_name, group_creator))
+        Eventdata = cursor.fetchall()
+
+        checkRSVP='SELECT * FROM Event LEFT JOIN RSVP ON Event.eID=RSVP.eID WHERE gName=%s AND gCreator=%s'
+        cursor.execute(checkRSVP,(group_name, group_creator))
+        RSVPdata = cursor.fetchall()
+        print(RSVPdata)
+        if len(Eventdata) == 0:
+            return render_template('viewonegroup.html', GCreator=group_creator, GroupName=group_name, GroupDescription=group_description,message_join=message_join,members=members)
+        else:
+            if len(RSVPdata) == 0:
+                Eventdf = pd.DataFrame(Eventdata)
+                Eventdf["userResponse"] = ""
+            else:
+                del Eventdata
+                Eventdf = pd.DataFrame(RSVPdata)
+                print(Eventdf.columns)
+                print(Eventdf)
+                Eventdf.loc[(Eventdf["response"] == "0"), "response"] = "Not going"
+                Eventdf.loc[(Eventdf["response"] == "1"), "response"] = "Going"
+                Eventdf.loc[(Eventdf["response"] == "2"), "response"] = "Maybe going"
+                Eventdf["response"] = Eventdf["response"].fillna("No Response")
+                Eventdf["userResponse"] = Eventdf["userName"]+" "+Eventdf["response"]
+                Eventdf["userResponse"] = Eventdf["userResponse"].fillna("No Response")
+                Eventdf.drop(columns=["gName","gCreator","userName","response","RSVP.eID"], inplace=True)
+                Eventdf['eDate'] = Eventdf['eDate'].dt.strftime('%Y/%d/%m %H:%m')
+                print(Eventdf)
+            Eventdf2 = pd.DataFrame(Eventdf.groupby(['eID', 'eName', 'eDesc', 'eDate']).agg(tuple).applymap(', '.join).reset_index()).T.to_dict()
+            print(Eventdf2)
+            return render_template('viewonegroup.html', GCreator=group_creator, GroupName=group_name, GroupDescription=group_description,message_join=message_join,members=members,Eventdf2=Eventdf2)
 
 @app.route('/logout')
 # To log out of the application, simply pop ‘username’ from the session store.
