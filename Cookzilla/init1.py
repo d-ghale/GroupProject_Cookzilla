@@ -23,7 +23,7 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 conn = pymysql.connect(host='localhost',
                        port = 3306,
                        user='root',
-                       password='PASSWORD',
+                       password='',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -627,30 +627,85 @@ def viewonerecipe():
 
 @app.route('/explore', methods=['GET','POST'])
 def exploreRecipes():
-    if 'rName' in request.form.keys():
+    keysDict=dict(request.form)
+    errorMsg=""
+    print("before modifaction",keysDict)
+    if keysDict.keys() >= {'tags'} and len(keysDict['tags'])==0:
+        del keysDict['tags']
+    if keysDict.keys() >= {'stars'} and len(keysDict['stars'])==0:
+        del keysDict['stars']
+    print("after modification",keysDict)
+    if 'rName' in keysDict.keys():
         cursor = conn.cursor()
-        recipeName=request.form['rName']
+        recipeName=keysDict['rName']
         ins='SELECT * FROM Recipe WHERE title like %s'
         args=['%'+recipeName+'%']
         cursor.execute(ins,args)
-    elif 'tags' in request.form.keys():
+    elif keysDict.keys() == {'tags','tagOperation','stars','tagAndStarOperation'}:
         cursor = conn.cursor()
-        tags=request.form['tags']
+        tags=keysDict['tags']
         tagsList=tags.split(',')
-        stars=request.form['stars']
-        tagOp=request.form['tagOperation']
-        tagAndStarOp=request.form['tagAndStarOperation']
+        tagListLen=len(tagsList)
+        tagOp=keysDict['tagOperation']
+        stars=keysDict['stars']
+        tagAndStarOp=keysDict['tagAndStarOperation']
+        args=[]
         print(tags+stars+tagOp+tagAndStarOp)
-        ins='SELECT * FROM Recipe JOIN recipetag ON Recipe.recipeID=recipetag.recipeID where tagText IN %s'
-        args=[tagsList]
+        if(tagOp=='AND' and tagAndStarOp=='AND'):
+            ins='SELECT * from Recipe where recipeID IN ((SELECT Recipe.recipeID FROM Recipe JOIN recipetag ON Recipe.recipeID=recipetag.recipeID where tagText IN %s GROUP BY recipetag.recipeID HAVING COUNT(*)=%s) INTERSECT (SELECT recipeID from review where stars > %s))'
+            args=[tagsList,str(tagListLen),stars]
+        elif(tagOp=='AND' and tagAndStarOp=='OR'):
+            ins='SELECT * from Recipe where recipeID IN ((SELECT Recipe.recipeID FROM Recipe JOIN recipetag ON Recipe.recipeID=recipetag.recipeID where tagText IN %s GROUP BY recipetag.recipeID HAVING COUNT(*)=%s) UNION (SELECT recipeID from review where stars > %s))'
+            args=[tagsList,str(tagListLen),stars]
+        elif(tagOp=='OR' and tagAndStarOp=='AND'):
+            ins='SELECT * from Recipe where recipeID IN ((SELECT Recipe.recipeID FROM Recipe JOIN recipetag ON Recipe.recipeID=recipetag.recipeID where tagText IN %s) INTERSECT (SELECT recipeID from review where stars > %s))'
+            args=[tagsList,stars]
+        elif(tagOp=='OR' and tagAndStarOp=='OR'):
+            ins='SELECT * from Recipe where recipeID IN ((SELECT Recipe.recipeID FROM Recipe JOIN recipetag ON Recipe.recipeID=recipetag.recipeID where tagText IN %s) UNION (SELECT recipeID from review where stars > %s))'
+            args=[tagsList,stars]
         cursor.execute(ins,args)
+    elif keysDict.keys() == {'tags','tagOperation'}:
+        cursor = conn.cursor()
+        tags=keysDict['tags']
+        tagsList=tags.split(',')
+        tagListLen=len(tagsList)
+        tagOp=keysDict['tagOperation']
+        if(tagOp=='AND'):
+            ins='SELECT * FROM Recipe JOIN recipetag ON Recipe.recipeID=recipetag.recipeID where tagText IN %s GROUP BY recipetag.recipeID HAVING COUNT(*)=%s'
+        if(tagOp=='OR'):
+            ins='SELECT * FROM Recipe JOIN recipetag ON Recipe.recipeID=recipetag.recipeID where tagText IN %s'
+        args=[tagsList,str(tagListLen)]
+        cursor.execute(ins,args)
+    elif keysDict.keys() == {'stars'}:
+        cursor = conn.cursor()
+        stars=keysDict['stars']
+        ins='SELECT recipeID from review where stars > %s'
+        args=[stars]
+        cursor.execute(ins,args)
+    elif keysDict.keys() >= {'tags'} and not(keysDict.keys() >= {'tagOperation'}):
+        if keysDict.keys() >= {'stars'}:
+            if not(keysDict.keys() >= {'tagAndStarOperation'}):
+                errorMsg="a tag operation choice must be selected if tags are provided and a starAndtag combining operation choice must be selected if stars and tags are provided."
+            else:
+                errorMsg="a tag operation choice must be selected if tags are provided." 
+        else:
+            errorMsg="a tag operation choice must be selected if tags are provided."
+    elif (keysDict.keys() >= {'tagOperation'} and not(keysDict.keys() >= {'tags'})) or (keysDict.keys() >= {'tagAndStarOperation'} and not(keysDict.keys() >= {'stars'})and not(keysDict.keys() >= {'tags'})):
+        if(keysDict.keys() >= {'tagOperation'} and not(keysDict.keys() >= {'tags'})) and (keysDict.keys() >= {'tagAndStarOperation'} and not(keysDict.keys() >= {'stars'}) and not(keysDict.keys() >= {'tags'})):
+            errorMsg="tags and stars must be provided if their tag operation and and tag and star combining operations are selected"
+        elif (keysDict.keys() >= {'tagOperation'} and not(keysDict.keys() >= {'tags'})):
+            errorMsg="tags must be provided if a tag operation is selected"
+        elif(keysDict.keys() >= {'tagAndStarOperation'} and not(keysDict.keys() >= {'stars'}) and not(keysDict.keys() >= {'tags'})):
+            errorMsg="tags and stars must be provided if a tag And Star combining Operation is selected"
     else:
         print("No rName found, returning all recipes")
         cursor = conn.cursor()
         ins='SELECT * FROM Recipe'
         cursor.execute(ins)
+    if(errorMsg!=""):
+        return render_template('explore.html',errorMsg=errorMsg)
     data = cursor.fetchall()
-    print(len(data))
+    # print(len(data))
     return render_template('explore.html',data=data,len=len(data))
 
 @app.route('/logout')

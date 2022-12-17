@@ -77,6 +77,9 @@
         <!-- Masthead-->
         <header class="masthead bg-primary text-white text-center">
             <div class="container d-flex align-items-center flex-column">
+                {%if errorMsg %}
+                <h1>Error: {{errorMsg}}</h1>
+                {%else%}
                 {%for i in range(0, len)%}
                   <div class="card" style="width: 18rem;">
                     <!-- <img class="card-img-top" src="..." alt="Card image cap"> -->
@@ -92,6 +95,7 @@
                         </div>
                     </form>
                 {%endfor%}
+                {%endif%}
             </div>
         </header>
         <!-- Portfolio Section-->
