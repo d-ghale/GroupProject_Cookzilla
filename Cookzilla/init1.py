@@ -4,7 +4,7 @@ import pymysql.cursors
 import bcrypt
 import os
 import hashlib
-
+import datetime
 #for uploading photo:
 from app import app
 #from flask import Flask, flash, request, redirect, render_template
@@ -23,7 +23,7 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 conn = pymysql.connect(host='localhost',
                        port = 3306,
                        user='root',
-                       password='',
+                       password='password',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -170,15 +170,21 @@ def home():
         
 
 
-        # cursor = conn.cursor();
-        # query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
-        # cursor.execute(query, (user))
-        # data = cursor.fetchall()
+        cursor = conn.cursor()
+        query = 'SELECT * FROM Recipe JOIN UserLog ON Recipe.recipeID=UserLog.recipeID WHERE userName = %s ORDER BY logtime DESC LIMIT 5'
+        cursor.execute(query, (user))
+        data = cursor.fetchall()
+        
+
+    
+    # [[{'recipeID': 3, 'title': 'testw', 'numServings': 2, 'postedBy': 'therealbappi'}], [{'recipeID': 1, 'title': 'Biryani', 'numServings': 3, 'postedBy': 'therealbappi'}]]
         # # We want to allow the user to be able to post and see their posts on the front page. 
         # # We call fetchall() and pass it into the home.html page.
+        # print(list(set(data)))
+        
+        cursor.close()
 
-        # cursor.close()
-        return render_template('home.html', username=user)
+        return render_template('home.html', username=user,data=data, len=len(data))
     else:
         return render_template('login.html')
 
@@ -603,6 +609,14 @@ def viewonerecipe():
     ins='SELECT pictureURL FROM ReviewPicture WHERE recipeID=%s'
     cursor.execute(ins,(recipeID))
     ReviewPicturedata = cursor.fetchall()
+    if session.get('username')!=None:
+        username = session['username']
+
+        ins='INSERT INTO UserLog(userName,recipeID) VALUES (%s,%s)'
+        
+        cursor.execute(ins,(username,recipeID))
+        conn.commit()
+
     
     if (len(RecipePicturedata) > 0) and (len(ReviewPicturedata) > 0):
         RecipePictureURL = "../" +RecipePicturedata[0]['pictureURL']
