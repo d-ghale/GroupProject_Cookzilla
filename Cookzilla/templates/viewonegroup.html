@@ -46,8 +46,20 @@
                             <p style="color: black;"> {{message_join}}!!! </p>
 							<h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Details about Group {{GroupName}}</h5>
                             <p style="color: black;text-align: right;"> created by {{GCreator}} </p>
-                            <p style="color: black;text-align: left;"> {{GroupDescription}} </p>
-                            <a class="nav-link py-3 px-0 px-lg-3 rounded" href="/addevent">Add Event</a></li>
+                            <p style="color: black;text-align: left;"><b>Description</b>: {{GroupDescription}} </p>
+                            {% if members %}
+                                <p style="color: black;text-align: left;"> <b>List of members</b>: {{members}} </p>
+                            {% endif %}
+                            <a class="nav-link py-3 px-0 px-lg-3 rounded" href="/addevent">Add new Event</a></li>
+                            {% if Eventdf2 %}
+                                <p style="color: black;text-align: left;"><b>List of scheduled events:</b></p>
+                                {%for i in range(0, Eventdf2|length)%}
+                                    <p class="card-text" style="color: black;text-align: left;">({{Eventdf2[i].eID}}) <b>{{Eventdf2[i].eName}}</b> on {{Eventdf2[i].eDate}} </p>
+                                    <p class="card-text" style="color: black;text-align: left;margin-left: 20px;">   <b>Description:</b> {{Eventdf2[i].eDesc}}</p>    
+                                    <p class="card-text" style="color: black;text-align: left;margin-left: 20px;"><b>RSVP list: </b>{{Eventdf2[i].userResponse}}</p>   
+                                {%endfor%}
+                            {% endif %}
+                            
 
 						  </div>
 						</div>
