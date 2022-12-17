@@ -706,6 +706,14 @@ def exploreRecipes():
     else:
         errorMsg="No recipe found for your search criteria."
         return render_template('explore.html',errorMsg=errorMsg)
+
+@app.route('/findusers', methods=['GET','POST'])
+def findUsers():
+    keysDict=dict(request.form)
+    print(keysDict)
+    errorMsg="PAGE NOT IMPLEMENTED"
+    return render_template('explore.html',errorMsg=errorMsg)
+
 @app.route('/logout')
 # To log out of the application, simply pop ‘username’ from the session store.
 # Note that if the user presses the back button on the browser or manually types in

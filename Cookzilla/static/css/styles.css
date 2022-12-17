@@ -11547,13 +11547,13 @@ html {
   flex-direction: row;
 }
 
-.filterModel{
+.filterModel, .findUserModel{
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
   z-index: 1; /* Sit on top */
   padding-top: 100px;
-  padding-left: 200px; 
-  padding-right: 200px;/* Location of the box */
+  padding-left: 400px; 
+  padding-right: 400px;/* Location of the box */
   left: 0;
   top: 0;
   width: 100%; /* Full width */
@@ -11583,6 +11583,7 @@ html {
   display: flex;
   flex-direction: column;
   margin: 20px;
+  padding: 30px;
   border: #066173;
 }
 
