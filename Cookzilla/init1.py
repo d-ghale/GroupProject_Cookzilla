@@ -20,21 +20,21 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ##app.secret_key = "secret key"
 # This sets the configuration to connect to your MySQL database
 #Configure MySQL
+# conn = pymysql.connect(host='localhost',
+#                        port = 3306,
+#                        user='root',
+#                        password='password',
+#                        db='Test',
+#                        charset='utf8mb4',
+                    #    cursorclass=pymysql.cursors.DictCursor)
+##Doma's conn below
 conn = pymysql.connect(host='localhost',
-                       port = 3306,
+                       port = 8889,
                        user='root',
-                       password='password',
+                       password='root',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
-# ##Doma's conn below
-# conn = pymysql.connect(host='localhost',
-#                        port = 8889,
-#                        user='root',
-#                        password='root',
-#                        db='Test',
-#                        charset='utf8mb4',
-#                        cursorclass=pymysql.cursors.DictCursor)
 
 
 def allowed_file(filename):
@@ -636,9 +636,9 @@ def viewonerecipe():
         # in database steps starts at 0, so added 1
         StepList.append(". ".join([str(Stepdata[i]['stepNo'] + 1), Stepdata[i]['sDesc']]))
     if len(StepList) > 0 :
-        StepStr = '\n'.join(StepList)
+        StepStr = StepList
     else:
-        StepStr = 'No steps provided'
+        StepStr = ['No steps provided']
     ins='SELECT tagText FROM RecipeTag WHERE recipeID=%s'
     cursor.execute(ins,(recipeID))
     Tagdata = cursor.fetchall()
