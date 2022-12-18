@@ -477,7 +477,7 @@ def add_event_process():
         event_time = request.form['event_time']
         group_name = request.form['group_name']
         group_creator = request.form['group_creator']
-        event_datetime = datetime.datetime.strptime(event_date + " " + event_time, "%Y-%m-%d %H:%M")
+        event_datetime = datetime.strptime(event_date + " " + event_time, "%Y-%m-%d %H:%M")
         print(event_description)
         cursor = conn.cursor()
         # User has to be part of the group to create an event  
