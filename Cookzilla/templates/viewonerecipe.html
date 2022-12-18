@@ -78,11 +78,12 @@
                             {%for i in range(0, NumReview)%}
                                 <li>
                                     By {{ReviewData[i].userName}} {{ReviewData[i].stars}} stars:  {{ReviewData[i].revTitle}} {{ReviewData[i].revDesc}} 
-                                            
-                                    {% if RecipePictureURL %}
-                                        <img src="{{ ReviewPictureURL }}" alt="Mike" height="240px" width="300px"></center>
-                                    {% endif %}
-                        
+                                    
+                                    {% if ReviewPictureURLs %}
+                                        {% if ReviewPictureURLs[i] != "" %}
+                                            <img src="{{ ReviewPictureURLs[i] }}" alt="Mike" height="240px" width="300px"></center>
+                                        {% endif %}
+                                        {% endif %}
                                 </li>
                             {%endfor%}
                             </ol>							

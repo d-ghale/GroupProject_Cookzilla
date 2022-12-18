@@ -27,7 +27,7 @@ conn = pymysql.connect(host='localhost',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
-## Doma's conn below
+# ##Doma's conn below
 # conn = pymysql.connect(host='localhost',
 #                        port = 8889,
 #                        user='root',
@@ -495,12 +495,12 @@ def join_event_process():
         E_check='SELECT * FROM GroupMembership JOIN Event WHERE eID=%s'
         cursor.execute(E_check,(event_ID))
         E_check_data = cursor.fetchone()
-        print(E_check_data)
+        # print(E_check_data)
         if E_check_data == None:
             message_join = "Sorry this event doesn't exist"
             return render_template('viewoneevent.html', message_join=message_join)
         #Check if already part of the group, needs fix!  
-        Member_check='SELECT * FROM GroupMembership JOIN Event WHERE eID=%s AND memberName=%s'
+        Member_check='SELECT * FROM GroupMembership NATURAL JOIN Event WHERE eID=%s AND memberName=%s'
         cursor.execute(Member_check,(event_ID, username))
         Member_check_data = cursor.fetchone()
         print(Member_check_data)
@@ -516,12 +516,24 @@ def join_event_process():
             if RSVP_history == None:
                 ins='INSERT INTO RSVP(userName, eID, response) VALUES(%s,%s,%s)'
                 cursor.execute(ins,(username,event_ID,event_response))
-                message_join = "Your response to the event is " + event_response
+                if event_response == "0":
+                    map_response = "not going"
+                if event_response == "1":
+                    map_response = "going"
+                if event_response == "2":
+                    map_response = "may be"
+                message_join = "Your response to the event is " + map_response
             else:
                 #Update with new respose if already RSVPed
                 ins_updateRSVP = 'UPDATE RSVP SET response=%s WHERE eID=%s AND userName=%s'
                 cursor.execute(ins_updateRSVP,(event_response,event_ID,username))
-                message_join = "Your response to the event is updated as " + event_response
+                if event_response == "0":
+                    map_response = "not going"
+                if event_response == "1":
+                    map_response = "going"
+                if event_response == "2":
+                    map_response = "may be"
+                message_join = "Your response to the event is updated as " + map_response
             #Fetching the info
             ins1='SELECT * FROM EVENT WHERE eID=%s'
             cursor.execute(ins1,(event_ID))
@@ -635,7 +647,8 @@ def viewonerecipe():
         TagStr = ', '.join(TagList)
     else:
         TagStr = 'None provided'
-    ins='SELECT * FROM Review WHERE recipeID=%s'
+        
+    ins='SELECT * FROM Review LEFT JOIN ReviewPicture ON Review.recipeID=ReviewPicture.recipeID AND Review.userName=ReviewPicture.userName  WHERE Review.recipeID=%s'
     cursor.execute(ins,(recipeID))
     ReviewData = cursor.fetchall()
     if ReviewData == None :
@@ -656,21 +669,21 @@ def viewonerecipe():
         cursor.execute(ins,(username,recipeID))
         conn.commit()
 
-    
+    print(ReviewData)
     if (len(RecipePicturedata) > 0) and (len(ReviewPicturedata) > 0):
         RecipePictureURL = "../" +RecipePicturedata[0]['pictureURL']
-        ReviewPictureURL = "../" +ReviewPicturedata[0]['pictureURL']
+        ReviewPictureURLs = ["../" +ReviewData[i]['pictureURL'] if ReviewData[i]['pictureURL']!=None else "" for i in range(len (ReviewData))]
         print(RecipePictureURL)
-        print(RecipePictureURL)
-        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL, ReviewPictureURL = ReviewPictureURL)
+        print(ReviewPictureURLs)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL, ReviewPictureURLs = ReviewPictureURLs)
     elif len(RecipePicturedata) > 0:
         RecipePictureURL = "../" +RecipePicturedata[0]['pictureURL']
         print(RecipePictureURL)
         return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL)
     elif len(RecipePicturedata) > 0:
-        ReviewPictureURL = "../" +ReviewPicturedata[0]['pictureURL']
+        ReviewPictureURLs = ["../" +ReviewData[i]['pictureURL'] if ReviewData[i]['pictureURL']!=None else "" for i in range(len (ReviewData))]
         print(RecipePictureURL)
-        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,ReviewPictureURL=ReviewPictureURL)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,ReviewPictureURLs=ReviewPictureURLs)
     else: 
         return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData)
 
