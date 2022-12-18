@@ -28,8 +28,8 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 #                        password='password',
 #                        db='Test',
 #                        charset='utf8mb4',
-#                        cursorclass=pymysql.cursors.DictCursor)
-# ##Doma's conn below
+                    #    cursorclass=pymysql.cursors.DictCursor)
+##Doma's conn below
 conn = pymysql.connect(host='localhost',
                        port = 8889,
                        user='root',
