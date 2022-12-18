@@ -5,17 +5,17 @@
 3. Use prepared statements
 
 Allow a user to:
-1. **Search for Recipes**: Junaid
+1. **Search for Recipes**: 
 
   Users should be able to search for recipes that have a particular tag and/or a given number of stars.
   
-2. **Display Recipe Info**: Doma
+2. **Display Recipe Info**: 
 
 
   Given a recipeID (possibly selected from a menu based on a search), display relevant information about the recipe, including the description, the steps in order, etc
   
   
-3. **Login**: Bharath
+3. **Login**:
 
 
   The user enters her username and password. Cookzilla will add “salt” to the password, hash it, and check whether the hash of the password matches the stored password for that username. If so, it initiates a session, storing the username and any other relevant data in session variables, then goes to the home page (or provides some mechanism for the user to select her next action.) 
@@ -25,24 +25,24 @@ Allow a user to:
    **The remaining use cases require the user to be logged in.**
 
 
-4. **Post a Recipe**: Bharath
+4. **Post a Recipe**: 
 
 
   Post a recipe and related data (steps, tags, etc)
 
 **Extensions**:
 
-1. Log users’ actions and display recipes and/or reviews that they viewed recently: Bharath
+1. Log users’ actions and display recipes and/or reviews that they viewed recently: 
 
-2. Post a review: Bharath
+2. Post a review: 
 
-3. Post an event for a group that user belongs to: Doma
+3. Post an event for a group that user belongs to: 
 
-4. RSVP to an event that the user belongs to: Doma
+4. RSVP to an event that the user belongs to:
 
-5. More complex searches: Junaid
+5. More complex searches:
 
-6. Search for users with similar taste as the given user (e.g. who have given similar ratings to some kinds of recipes): Junaid
+6. Search for users with similar taste as the given user (e.g. who have given similar ratings to some kinds of recipes):
 
 
 **Extensions Options**:
