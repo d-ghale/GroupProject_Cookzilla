@@ -20,21 +20,21 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ##app.secret_key = "secret key"
 # This sets the configuration to connect to your MySQL database
 #Configure MySQL
-conn = pymysql.connect(host='localhost',
-                       port = 3306,
-                       user='root',
-                       password='password',
-                       db='Test',
-                       charset='utf8mb4',
-                       cursorclass=pymysql.cursors.DictCursor)
-# ##Doma's conn below
 # conn = pymysql.connect(host='localhost',
-#                        port = 8889,
+#                        port = 3306,
 #                        user='root',
-#                        password='root',
+#                        password='password',
 #                        db='Test',
 #                        charset='utf8mb4',
 #                        cursorclass=pymysql.cursors.DictCursor)
+##Doma's conn below
+conn = pymysql.connect(host='localhost',
+                       port = 8889,
+                       user='root',
+                       password='root',
+                       db='Test',
+                       charset='utf8mb4',
+                       cursorclass=pymysql.cursors.DictCursor)
 
 
 def allowed_file(filename):
@@ -647,7 +647,8 @@ def viewonerecipe():
         TagStr = ', '.join(TagList)
     else:
         TagStr = 'None provided'
-    ins='SELECT * FROM Review WHERE recipeID=%s'
+        
+    ins='SELECT * FROM Review LEFT JOIN ReviewPicture ON Review.recipeID=ReviewPicture.recipeID AND Review.userName=ReviewPicture.userName  WHERE Review.recipeID=%s'
     cursor.execute(ins,(recipeID))
     ReviewData = cursor.fetchall()
     if ReviewData == None :
@@ -668,21 +669,21 @@ def viewonerecipe():
         cursor.execute(ins,(username,recipeID))
         conn.commit()
 
-    
+    print(ReviewData)
     if (len(RecipePicturedata) > 0) and (len(ReviewPicturedata) > 0):
         RecipePictureURL = "../" +RecipePicturedata[0]['pictureURL']
-        ReviewPictureURL = "../" +ReviewPicturedata[0]['pictureURL']
+        ReviewPictureURLs = ["../" +ReviewData[i]['pictureURL'] if ReviewData[i]['pictureURL']!=None else "" for i in range(len (ReviewData))]
         print(RecipePictureURL)
-        print(RecipePictureURL)
-        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL, ReviewPictureURL = ReviewPictureURL)
+        print(ReviewPictureURLs)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL, ReviewPictureURLs = ReviewPictureURLs)
     elif len(RecipePicturedata) > 0:
         RecipePictureURL = "../" +RecipePicturedata[0]['pictureURL']
         print(RecipePictureURL)
         return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL)
     elif len(RecipePicturedata) > 0:
-        ReviewPictureURL = "../" +ReviewPicturedata[0]['pictureURL']
+        ReviewPictureURLs = ["../" +ReviewData[i]['pictureURL'] if ReviewData[i]['pictureURL']!=None else "" for i in range(len (ReviewData))]
         print(RecipePictureURL)
-        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,ReviewPictureURL=ReviewPictureURL)
+        return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,ReviewPictureURLs=ReviewPictureURLs)
     else: 
         return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData)
 
