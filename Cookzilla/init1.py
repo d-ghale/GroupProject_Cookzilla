@@ -834,8 +834,8 @@ def findUsers():
             del keysDict['tag']
         if keysDict.keys() >= {'ingredient'} and len(keysDict['ingredient'])==0:
             del keysDict['ingredient']
-        if keysDict.keys() >= {'rname'} and len(keysDict['rname'])==0:
-            del keysDict['rname']
+        if keysDict.keys() >= {'recname'} and len(keysDict['recname'])==0:
+            del keysDict['recname']
 
         if len(keysDict.keys())==1: 
             if keysDict.keys()>={'tag'}:
@@ -846,7 +846,7 @@ def findUsers():
                 args=[keysDict['ingredient'],keysDict['ingredient'],session.get('username'),session.get('username')]
             else:
                 ins='SELECT * from person NATURAL JOIN recipe NATURAL JOIN review where title LIKE %s and stars-(SELECT stars FROM recipe NATURAL JOIN review where title LIKE %s GROUP BY postedBy HAVING postedBy= %s) <2 and userName!= %s'
-                recipeName='%'+keysDict['rname']+'%'
+                recipeName='%'+keysDict['recname']+'%'
                 args=[recipeName,recipeName,session.get('username'),session.get('username')]
         else:
             errorMsg="user search allowed by only one of the follow tag/ingredient/recipe name"

@@ -7,23 +7,26 @@
         <div class="topnav">
             
             <div class="search-container nav-item mx-0 mx-lg-1">
-                <h2>filter options <span class="close">&times;</span></h2>
+                <h2>Recipe Filter Options <span class="close">&times;</span></h2>
                 <form action="/explore" method="POST">
-                    <div>
+                    <div style="display: flex;flex-direction:row;justify-content:space-between">
                         <input type="radio" id="andTags" name="tagOperation" value="AND">
                         <label for="andTags">include all tags</label>
+                        <div style="width: 60px;"></div>
                         <input type="radio" id="orTags" name="tagOperation" value="OR">
                         <label for="orTags">include any tag(s)</label><br>
                     </div>
-                    <input type="text" class="form-control" placeholder="Tags" name="tags">
-                    <input type="number" class="form-control" placeholder="Stars" name="stars">
-                    <div>
+                    <input type="text" class="form-control" style="border-radius:5px; margin-bottom:5px" placeholder="Tags" name="tags">
+                    <input type="number" class="form-control" style="border-radius:5px" placeholder="Stars" name="stars">
+                    <div style="display: flex;flex-direction:row;justify-content:space-between">
                         <input type="radio" id="tagsAndStars" name="tagAndStarOperation" value="AND">
-                        <label for="tagsAndStars">match recipes having both the specified tags and stars</label><br>
+                        <div style="width: 10px;"></div>
+                        <label for="tagsAndStars">match recipes having both the specified tags and stars</label>
+                        <div style="width: 10px;"></div>
                         <input type="radio" id="tagsOrStars" name="tagAndStarOperation" value="OR">
-                        <label for="tagsOrStars">match recipes either specified tags or stars</label><br>
+                        <label for="tagsOrStars">match recipes either specified tags or stars</label>
                     </div>
-                    <button type="submit">Filter</button>
+                    <button type="submit" style="background-color:lightseagreen;border-radius:5px">Filter</button>
                 </form>
             </div>
         </div>
@@ -36,10 +39,11 @@
             <div class="search-container nav-item mx-0 mx-lg-1">
                 <h2>Search Users Similar to Your Ratings for recipes with: <span class="close">&times;</span></h2>
                 <form action="/findusers" method="POST">
-                    <input type="text" class="form-control" placeholder="Tag" name="tag">
-                    <input type="text" class="form-control" placeholder="Ingredient" name="ingredient">
-                    <input type="text" class="form-control" placeholder="Recipe Name" name="rname">
-                    <button type="submit">Find</button>
+                    <input type="text" class="form-control" style="border-radius:5px" placeholder="Tag" name="tag" id="tag" onkeyup="allowThisFieldOnly(this.name)">
+                    <input type="text" class="form-control" style="border-radius:5px" placeholder="Ingredient" name="ingredient" id="ingredient" onkeyup="allowThisFieldOnly(this.name)">
+                    <input type="text" class="form-control" style="border-radius:5px" placeholder="Recipe Name" name="recname" id="recname" onkeyup="allowThisFieldOnly(this.name)">
+                    <button type="button" style="border-radius:5px" onclick="clearFields()">Clear</button>
+                    <button type="submit" style="background-color:lightseagreen;border-radius:5px">Find</button>
                 </form>
             </div>
         </div>
@@ -94,6 +98,44 @@
         if (event.target == modal2) {
             modal2.style.display = "none";
         }
+    }
+
+    function allowThisFieldOnly(field) {
+        console.log(field);
+        var value = document.getElementById(String(field)).value;
+        var rec = document.getElementById("recname");
+        var tag = document.getElementById("tag");
+        var ing = document.getElementById("ingredient");
+        if (value.length > 0) {
+            if(field=="tag"){
+                rec.style.display="none";
+                ing.style.display="none";
+            }
+            if(field=="ingredient"){
+                rec.style.display="none";
+                tag.style.display="none";
+            }
+            if(field=="recname"){
+                ing.style.display="none";
+                tag.style.display="none";
+            }
+        } else{
+            rec.style.display="block";
+            tag.style.display="block";
+            ing.style.display="block";
+        }
+    }
+
+    function clearFields(){
+        var rec = document.getElementById("recname");
+        var tag = document.getElementById("tag");
+        var ing = document.getElementById("ingredient");
+        rec.style.display="block";
+        tag.style.display="block";
+        ing.style.display="block";
+        rec.value="";
+        tag.value="";
+        ing.value="";
     }
 </script>
 </body>
