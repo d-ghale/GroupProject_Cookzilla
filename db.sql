@@ -16,7 +16,7 @@ DROP TABLE IF EXISTS RecipePicture;
 DROP TABLE IF EXISTS RecipeTag;
 DROP TABLE IF EXISTS Recipe;
 DROP TABLE IF EXISTS Person;
-
+DROP TABLE IF EXISTS UserLog;
 
 CREATE TABLE Person (
     userName VARCHAR(50) PRIMARY KEY,
@@ -187,3 +187,12 @@ CREATE TABLE RecipeIngredient (
         REFERENCES Unit (unitName)
 );
 
+
+CREATE TABLE UserLog(
+    userName VARCHAR(50) NOT NULL,
+    recipeID INT NOT NULL,
+    logtime DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(userName) REFERENCES Person (userName),
+    FOREIGN KEY(recipeID) REFERENCES Recipe (recipeID),
+    PRIMARY KEY(userName, logtime)
+);
