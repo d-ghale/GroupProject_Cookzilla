@@ -4,7 +4,9 @@ import pymysql.cursors
 import bcrypt
 import os
 import hashlib
-import datetime
+from datetime import datetime, timedelta
+import pandas as pd
+import numpy as np
 #for uploading photo:
 from app import app
 #from flask import Flask, flash, request, redirect, render_template
@@ -440,8 +442,6 @@ def join_group_process():
     else:
         return render_template('login.html')
 
-import datetime
-
 @app.route('/addeventprocess', methods=['GET','POST'])
 def add_event_process():
     if session.get('username')!=None:
@@ -842,9 +842,6 @@ def exploregroup():
     data = cursor.fetchall()
     return render_template('explore_group.html',data=data,len=len(data))
 
-import pandas as pd
-import numpy as np
-
 @app.route('/exploreonegroup', methods=['GET','POST'])
 def exploreonegroup():
     if session.get('username')!=None:
@@ -895,6 +892,32 @@ def exploreonegroup():
             Eventdf2 = pd.DataFrame(Eventdf.groupby(['eID', 'eName', 'eDesc', 'eDate']).agg(tuple).applymap(', '.join).reset_index()).T.to_dict()
             print(Eventdf2)
             return render_template('viewonegroup.html', GCreator=group_creator, GroupName=group_name, GroupDescription=group_description,message_join=message_join,members=members,Eventdf2=Eventdf2)
+
+@app.route('/complexqueries', methods=['GET','POST'])
+def complexQueries():
+    cursor = conn.cursor()
+    if session.get('username')!=None:
+        stmt1='SELECT * FROM review as r1 WHERE NOT EXISTS((SELECT recipeId from review WHERE userName=%s and stars=5) EXCEPT (SELECT recipeID from review as r2 WHERE r1.userName=r2.userName AND r2.stars=5)) AND userName!=%s'
+        cursor.execute(stmt1,(session.get('username'),session.get('username')))
+        q1 = cursor.fetchall()
+        q1len=len(q1)
+
+        stmt2='SELECT * FROM recipe NATURAL JOIN recipetag WHERE tagText IN (select tagText from recipe NATURAL JOIN recipetag NATURAL JOIN userlog WHERE logtime>%s GROUP BY tagText) GROUP BY recipeID'
+        cursor.execute(stmt2,((datetime.now()- timedelta(days=30)).strftime("%Y-%m-%d %H:%M:%S")))
+        q2 = cursor.fetchall()
+        q2len=len(q2)
+
+        stmt3='select * from ((SELECT recipeId From recipe) EXCEPT (SELECT DISTINCT(recipeId) FROM userlog WHERE logtime>%s)) As recipesNotViewed JOIN Recipe ON Recipe.RecipeId=recipesNotViewed.recipeId'
+        cursor.execute(stmt3,((datetime.now()- timedelta(days=30)).strftime("%Y-%m-%d %H:%M:%S")))
+        q3 = cursor.fetchall()
+        q3len=len(q3)  
+
+        stmt4='select * from person NATURAL JOIN review GROUP BY userName HAVING COUNT(recipeId)=(SELECT COUNT(recipeId) FROM recipe)'
+        cursor.execute(stmt4)
+        q4 = cursor.fetchall()
+        q4len=len(q4)       
+        return render_template('complexqueries.html',q1=q1,q1len=q1len,q2=q2,q2len=q2len,q3=q3,q3len=q3len,q4=q4,q4len=q4len)
+    return redirect('/')
 
 @app.route('/logout')
 def logout():
