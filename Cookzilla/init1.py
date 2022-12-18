@@ -21,22 +21,22 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ##app = Flask(__name__)
 ##app.secret_key = "secret key"
 # This sets the configuration to connect to your MySQL database
-#Configure MySQL
-# conn = pymysql.connect(host='localhost',
-#                        port = 3306,
-#                        user='root',
-#                        password='password',
-#                        db='Test',
-#                        charset='utf8mb4',
-                    #    cursorclass=pymysql.cursors.DictCursor)
-##Doma's conn below
+# Configure MySQL
 conn = pymysql.connect(host='localhost',
-                       port = 8889,
+                       port = 3306,
                        user='root',
-                       password='root',
+                       password='password',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
+##Doma's conn below
+# conn = pymysql.connect(host='localhost',
+#                        port = 8889,
+#                        user='root',
+#                        password='root',
+#                        db='Test',
+#                        charset='utf8mb4',
+#                        cursorclass=pymysql.cursors.DictCursor)
 
 
 def allowed_file(filename):
@@ -925,8 +925,12 @@ def exploreonegroup():
 def complexQueries():
     cursor = conn.cursor()
     if session.get('username')!=None:
-        stmt1='SELECT * FROM person NATURAL JOIN review as r1 WHERE NOT EXISTS((SELECT recipeId from review WHERE userName=%s and stars=5) EXCEPT (SELECT recipeID from review as r2 WHERE r1.userName=r2.userName AND r2.stars=5)) AND userName!=%s'
-        cursor.execute(stmt1,(session.get('username'),session.get('username')))
+        querry="SELECT * FROM review WHERE userName=%s AND stars=5"
+        cursor.execute(querry,(session.get('username')))
+        q = cursor.fetchall()
+        if len(q)!=0:
+            stmt1='SELECT * FROM person NATURAL JOIN review as r1 WHERE NOT EXISTS((SELECT recipeId from review WHERE userName=%s and stars=5) EXCEPT (SELECT recipeID from review as r2 WHERE r1.userName=r2.userName AND r2.stars=5)) AND userName!=%s'
+            cursor.execute(stmt1,(session.get('username'),session.get('username')))
         q1 = cursor.fetchall()
         q1len=len(q1)
 
