@@ -1,8 +1,8 @@
 # GroupProject_Cookzilla
 
-1. Implement application code for Cookzilla as a web-based application using solution from part 2
-2. Language: Java or Python?
-3. Use prepared statements
+1. Implement application code for Cookzilla as a web-based application.
+2. Language: Python.
+3. Used prepared statements
 
 Allow a user to:
 1. **Search for Recipes**: 
@@ -45,8 +45,3 @@ Allow a user to:
 6. Search for users with similar taste as the given user (e.g. who have given similar ratings to some kinds of recipes):
 
 
-**Extensions Options**:
-- Convert the units in a recipe
-- The user can set a preferred unit, and everytime they see the recipe ingredients, they should be able to see it in the previously set unit.
-
-If you want to do any other query apart from the ones suggested above, please check-in with us first by **Dec 6**.
