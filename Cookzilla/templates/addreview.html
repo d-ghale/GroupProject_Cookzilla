@@ -43,15 +43,15 @@
 							<h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Add Review</h5>
 							<form action="/publishreview?r={{recipeID}}" method="POST" enctype="multipart/form-data">
 							  <div class="form-floating mb-3">
-								<input type="text" class="form-control" id="floatingInput" placeholder="Review Title" name="reviewtitle">
+								<input type="text" class="form-control" id="floatingInput" placeholder="Review Title" name="reviewtitle" required>
 								<label for="floatingInput">Review Title</label>
 							  </div>
                               <div class="form-floating mb-3">
-								<input type="number" class="form-control" id="floatingInput" placeholder="Review Stars" name="reviewstars">
+								<input type="number" class="form-control" id="floatingInput" placeholder="Review Stars" name="reviewstars" required min="1">
 								<label for="floatingInput">Review Stars</label>
 							  </div>
                               <div class="form-floating mb-3">
-								<input type="text" class="form-control" id="floatingInput" placeholder="Description" name="description">
+								<input type="text" class="form-control" id="floatingInput" placeholder="Description" name="description" required>
 								<label for="floatingInput">Description</label>
 							  </div>
                              

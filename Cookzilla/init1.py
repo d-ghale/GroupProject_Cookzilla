@@ -25,7 +25,7 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 conn = pymysql.connect(host='localhost',
                        port = 3306,
                        user='root',
-                       password='',
+                       password='password',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -276,6 +276,17 @@ def insertunit(unit):
         conn.commit()
 
 
+def delrow(recipeID):
+    cursor = conn.cursor()
+    q="DELETE FROM RecipePicture WHERE recipeID=%s"
+    cursor.execute(q, (recipeID))
+    q="DELETE FROM RecipeTag WHERE recipeID=%s"
+    cursor.execute(q, (recipeID))
+    q="DELETE FROM Recipe WHERE recipeID=%s"
+    cursor.execute(q, (recipeID))
+    conn.commit()
+
+
 @app.route('/addsteps', methods=['GET','POST'])
 def addsteps():
     data=request.form
@@ -285,9 +296,23 @@ def addsteps():
     print(ingredients)
     cursor = conn.cursor()
     recipeID=session['recipeID']
+    for step in steps:
+        if step=="":
+            errorMsg="You cant have any empty step"
+            delrow(recipeID)
+            return render_template('error.html',errorMsg=errorMsg)
+
+
+    print(len(steps))
+
     for ingredient in ingredients:
         things=ingredient.split(" ")
         print(things)
+        if len(things)!=3:
+            errorMsg="Please enter valid ingredients"
+            delrow(recipeID)
+            return render_template('error.html',errorMsg=errorMsg)
+        
         iname=things[0]
         insertingi(iname)
         unit=things[2]
@@ -574,8 +599,8 @@ def publishreview():
         cursor.execute(qs,(recipeID,username))
         data = cursor.fetchall()
         if len(data)!=0:
-            flash("You can only post once")  
-            return render_template('error.html',username=username)
+            errorMsg="You can only post review once"
+            return render_template('error.html',username=username,errorMsg=errorMsg)
 
         else:
             print(data,len(data))
