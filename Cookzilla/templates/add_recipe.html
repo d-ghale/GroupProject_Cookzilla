@@ -43,23 +43,23 @@
 							<h5 class="card-title text-center mb-5 fw-light fs-5" style="color: black;">Add a New Recipe</h5>
 							<form action="/addrecipeprocess" method="POST" enctype="multipart/form-data">
 							  <div class="form-floating mb-3">
-								<input type="text" class="form-control" id="floatingInput" placeholder="Recipe Title" name="recipetitle">
+								<input type="text" class="form-control" id="floatingInput" placeholder="Recipe Title" name="recipetitle" required>
 								<label for="floatingInput">Recipe Title</label>
 							  </div>
                               <div class="form-floating mb-3">
-								<input type="number" class="form-control" id="floatingInput" placeholder="Number of Servings" name="num_servings">
+								<input type="number" class="form-control" id="floatingInput" placeholder="Number of Servings" name="num_servings" required>
 								<label for="floatingInput">Number of Servings</label>
 							  </div>
                               <div class="form-floating mb-3">
-								<input type="text" class="form-control" id="floatingInput" placeholder="Tags" name="tags">
+								<input type="text" class="form-control" id="floatingInput" placeholder="Tags" name="tags" required>
 								<label for="floatingInput">Tags</label>
 							  </div>
                               <div class="form-floating mb-3">
-								<input type="number" class="form-control" id="floatingInput" placeholder="Number of Steps" name="num_steps">
+								<input type="number" class="form-control" id="floatingInput" placeholder="Number of Steps" name="num_steps" required min="1">
 								<label for="floatingInput">Number of Steps</label>
 							  </div>
                               <div class="form-floating mb-3">
-								<input type="number" class="form-control" id="floatingInput" placeholder="Number of Ingredients" name="num_ingredients">
+								<input type="number" class="form-control" id="floatingInput" placeholder="Number of Ingredients" name="num_ingredients" min="1">
 								<label for="floatingInput">Number of Ingredients</label>
 							  </div>
                               <div class="form-floating mb-3">
