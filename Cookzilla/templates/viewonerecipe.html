@@ -56,7 +56,9 @@
                             <p style="color: black;text-align: left;"> Tags: {{Tagdata}}</p>
 							<p style="color: black;text-align: left;"> Ingredients: {{RecipeIngredientdata}}</p>
 							<p style="color: black;text-align: left;"> Please follow the steps below:</p>
-                            <p style="color: black;text-align: left;"> {{Stepdata}}</p>
+                            {%for i in range(0, Stepdata|length)%}
+                                <p style="color: black;text-align: left;"> {{Stepdata[i]}}</p>
+                            {%endfor%}
                           
 						  </div>
 						</div>
