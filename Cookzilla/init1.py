@@ -722,6 +722,7 @@ def exploreRecipes():
         del keysDict['tags']
     if keysDict.keys() >= {'stars'} and len(keysDict['stars'])==0:
         del keysDict['stars']
+    print(keysDict.keys())
     if 'rName' in keysDict.keys():
         cursor = conn.cursor()
         recipeName=keysDict['rName']
@@ -804,6 +805,8 @@ def exploreRecipes():
             ins='SELECT * FROM Recipe NATURAL JOIN recipetag NATURAL JOIN review where stars >%s GROUP BY recipeId'
             args=[stars]
             cursor.execute(ins,args)
+    elif keysDict.keys() == {'tags','tagOperation','stars'}:
+        errorMsg="tag and star combining operation must be selected if tags operation, tags, and stars are provided."
     else:
         print("No rName found, returning all recipes")
         cursor = conn.cursor()
