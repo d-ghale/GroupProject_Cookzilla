@@ -23,7 +23,7 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 conn = pymysql.connect(host='localhost',
                        port = 3306,
                        user='root',
-                       password='password',
+                       password='',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -692,6 +692,7 @@ def viewonerecipe():
 def exploreRecipes():
     keysDict=dict(request.form)
     errorMsg=""
+    args=[]
     if keysDict.keys() >= {'tags'} and len(keysDict['tags'])==0:
         del keysDict['tags']
     if keysDict.keys() >= {'stars'} and len(keysDict['stars'])==0:
@@ -710,6 +711,7 @@ def exploreRecipes():
         tagOp=keysDict['tagOperation']
         stars=keysDict['stars']
         tagAndStarOp=keysDict['tagAndStarOperation']
+        ins=""
         args=[]
         print(tags+stars+tagOp+tagAndStarOp)
         if(tagOp=='AND' and tagAndStarOp=='AND'):
@@ -758,6 +760,25 @@ def exploreRecipes():
             errorMsg="tags must be provided if a tag operation is selected"
         elif(keysDict.keys() >= {'tagAndStarOperation'} and not(keysDict.keys() >= {'stars'}) and not(keysDict.keys() >= {'tags'})):
             errorMsg="tags and stars must be provided if a tag And Star combining Operation is selected"
+    elif keysDict.keys() >= {'tagAndStarOperation'} and (not(keysDict.keys() >= {'stars'}) or not(keysDict.keys() >= {'tags'})):
+        cursor = conn.cursor()
+        if not(keysDict.keys() >= {'stars'}):
+            tags=keysDict['tags']
+            tagsList=tags.split(',')
+            tagListLen=len(tagsList)
+            tagOp=keysDict['tagOperation']
+            if(tagOp=='AND'):
+                ins='SELECT * FROM Recipe JOIN recipetag ON Recipe.recipeID=recipetag.recipeID where tagText IN %s GROUP BY recipetag.recipeID HAVING COUNT(*)=%s'
+            if(tagOp=='OR'):
+                ins='SELECT * FROM Recipe JOIN recipetag ON Recipe.recipeID=recipetag.recipeID where tagText IN %s'
+            args=[tagsList,str(tagListLen)]
+            cursor.execute(ins,args)
+        if not(keysDict.keys() >= {'tags'}):
+            cursor = conn.cursor()
+            stars=keysDict['stars']
+            ins='SELECT * FROM Recipe NATURAL JOIN recipetag NATURAL JOIN review where stars >%s GROUP BY recipeId'
+            args=[stars]
+            cursor.execute(ins,args)
     else:
         print("No rName found, returning all recipes")
         cursor = conn.cursor()
@@ -775,10 +796,43 @@ def exploreRecipes():
 
 @app.route('/findusers', methods=['GET','POST'])
 def findUsers():
-    keysDict=dict(request.form)
-    print(keysDict)
-    errorMsg="PAGE NOT IMPLEMENTED"
-    return render_template('explore.html',errorMsg=errorMsg)
+    if session.get('username')!=None:
+        errorMsg=""
+        keysDict=dict(request.form)
+        # print(keysDict)
+        cursor = conn.cursor()
+        args=[]
+        if keysDict.keys() >= {'tag'} and len(keysDict['tag'])==0:
+            del keysDict['tag']
+        if keysDict.keys() >= {'ingredient'} and len(keysDict['ingredient'])==0:
+            del keysDict['ingredient']
+        if keysDict.keys() >= {'rname'} and len(keysDict['rname'])==0:
+            del keysDict['rname']
+
+        if len(keysDict.keys())==1: 
+            if keysDict.keys()>={'tag'}:
+                ins='SELECT * from person NATURAL JOIN recipe NATURAL JOIN recipetag NATURAL JOIN review where tagText=%s and stars-(SELECT stars FROM recipe NATURAL JOIN recipetag NATURAL JOIN review where tagText=%s GROUP BY postedBy HAVING postedBy= %s) <2 and userName!= %s'
+                args=[keysDict['tag'],keysDict['tag'],session.get('username'),session.get('username')]
+            elif keysDict.keys()>={'ingredient'}:
+                ins='SELECT * from person NATURAL JOIN recipe NATURAL JOIN recipeingredient NATURAL JOIN review where iName=%s and stars-(SELECT stars FROM recipe NATURAL JOIN recipeingredient NATURAL JOIN review where iName=%s GROUP BY postedBy HAVING postedBy= %s) <2 and userName!= %s'
+                args=[keysDict['ingredient'],keysDict['ingredient'],session.get('username'),session.get('username')]
+            else:
+                ins='SELECT * from person NATURAL JOIN recipe NATURAL JOIN review where title LIKE %s and stars-(SELECT stars FROM recipe NATURAL JOIN review where title LIKE %s GROUP BY postedBy HAVING postedBy= %s) <2 and userName!= %s'
+                recipeName='%'+keysDict['rname']+'%'
+                args=[recipeName,recipeName,session.get('username'),session.get('username')]
+        else:
+            errorMsg="user search allowed by only one of the follow tag/ingredient/recipe name"
+        if(errorMsg!=""):
+            return render_template('viewUsers.html',errorMsg=errorMsg)
+        cursor.execute(ins,args)
+        data = cursor.fetchall()
+        numRows=len(data)
+        if(numRows>0):
+            return render_template('viewUsers.html',data=data,len=numRows)
+        else:
+            errorMsg="No recipe found for your search criteria."
+            return render_template('viewUsers.html',errorMsg=errorMsg)
+    return render_template('/')
 
 @app.route('/exploregroup')
 def exploregroup():
