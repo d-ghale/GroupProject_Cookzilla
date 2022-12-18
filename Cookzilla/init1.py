@@ -761,9 +761,10 @@ def exploreRecipes():
         tagOp=keysDict['tagOperation']
         if(tagOp=='AND'):
             ins='SELECT * FROM Recipe JOIN recipetag ON Recipe.recipeID=recipetag.recipeID where tagText IN %s GROUP BY recipetag.recipeID HAVING COUNT(*)=%s'
+            args=[tagsList,str(tagListLen)]
         if(tagOp=='OR'):
             ins='SELECT * FROM Recipe JOIN recipetag ON Recipe.recipeID=recipetag.recipeID where tagText IN %s'
-        args=[tagsList,str(tagListLen)]
+            args=[tagsList]
         cursor.execute(ins,args)
     elif keysDict.keys() == {'stars'}:
         cursor = conn.cursor()
