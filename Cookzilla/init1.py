@@ -20,21 +20,21 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ##app.secret_key = "secret key"
 # This sets the configuration to connect to your MySQL database
 #Configure MySQL
+# conn = pymysql.connect(host='localhost',
+#                        port = 3306,
+#                        user='root',
+#                        password='password',
+#                        db='Test',
+#                        charset='utf8mb4',
+                    #    cursorclass=pymysql.cursors.DictCursor)
+# ##Doma's conn below
 conn = pymysql.connect(host='localhost',
-                       port = 3306,
+                       port = 8889,
                        user='root',
-                       password='password',
+                       password='root',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
-## Doma's conn below
-# conn = pymysql.connect(host='localhost',
-#                        port = 8889,
-#                        user='root',
-#                        password='root',
-#                        db='Test',
-#                        charset='utf8mb4',
-#                        cursorclass=pymysql.cursors.DictCursor)
 
 
 def allowed_file(filename):
@@ -495,12 +495,12 @@ def join_event_process():
         E_check='SELECT * FROM GroupMembership JOIN Event WHERE eID=%s'
         cursor.execute(E_check,(event_ID))
         E_check_data = cursor.fetchone()
-        print(E_check_data)
+        # print(E_check_data)
         if E_check_data == None:
             message_join = "Sorry this event doesn't exist"
             return render_template('viewoneevent.html', message_join=message_join)
         #Check if already part of the group, needs fix!  
-        Member_check='SELECT * FROM GroupMembership JOIN Event WHERE eID=%s AND memberName=%s'
+        Member_check='SELECT * FROM GroupMembership NATURAL JOIN Event WHERE eID=%s AND memberName=%s'
         cursor.execute(Member_check,(event_ID, username))
         Member_check_data = cursor.fetchone()
         print(Member_check_data)
@@ -516,12 +516,24 @@ def join_event_process():
             if RSVP_history == None:
                 ins='INSERT INTO RSVP(userName, eID, response) VALUES(%s,%s,%s)'
                 cursor.execute(ins,(username,event_ID,event_response))
-                message_join = "Your response to the event is " + event_response
+                if event_response == "0":
+                    map_response = "not going"
+                if event_response == "1":
+                    map_response = "going"
+                if event_response == "2":
+                    map_response = "may be"
+                message_join = "Your response to the event is " + map_response
             else:
                 #Update with new respose if already RSVPed
                 ins_updateRSVP = 'UPDATE RSVP SET response=%s WHERE eID=%s AND userName=%s'
                 cursor.execute(ins_updateRSVP,(event_response,event_ID,username))
-                message_join = "Your response to the event is updated as " + event_response
+                if event_response == "0":
+                    map_response = "not going"
+                if event_response == "1":
+                    map_response = "going"
+                if event_response == "2":
+                    map_response = "may be"
+                message_join = "Your response to the event is updated as " + map_response
             #Fetching the info
             ins1='SELECT * FROM EVENT WHERE eID=%s'
             cursor.execute(ins1,(event_ID))
