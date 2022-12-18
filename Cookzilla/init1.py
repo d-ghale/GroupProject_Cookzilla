@@ -925,7 +925,7 @@ def exploreonegroup():
 def complexQueries():
     cursor = conn.cursor()
     if session.get('username')!=None:
-        stmt1='SELECT * FROM review as r1 WHERE NOT EXISTS((SELECT recipeId from review WHERE userName=%s and stars=5) EXCEPT (SELECT recipeID from review as r2 WHERE r1.userName=r2.userName AND r2.stars=5)) AND userName!=%s'
+        stmt1='SELECT * FROM person NATURAL JOIN review as r1 WHERE NOT EXISTS((SELECT recipeId from review WHERE userName=%s and stars=5) EXCEPT (SELECT recipeID from review as r2 WHERE r1.userName=r2.userName AND r2.stars=5)) AND userName!=%s'
         cursor.execute(stmt1,(session.get('username'),session.get('username')))
         q1 = cursor.fetchall()
         q1len=len(q1)
