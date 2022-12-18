@@ -832,7 +832,7 @@ def findUsers():
         else:
             errorMsg="No recipe found for your search criteria."
             return render_template('viewUsers.html',errorMsg=errorMsg)
-    return render_template('/')
+    return redirect('/')
 
 @app.route('/exploregroup')
 def exploregroup():
@@ -897,11 +897,6 @@ def exploreonegroup():
             return render_template('viewonegroup.html', GCreator=group_creator, GroupName=group_name, GroupDescription=group_description,message_join=message_join,members=members,Eventdf2=Eventdf2)
 
 @app.route('/logout')
-# To log out of the application, simply pop ‘username’ from the session store.
-# Note that if the user presses the back button on the browser or manually types in
-# a path that requires the user to be logged in, bad things will happen. In all the routes
-# add a check to see if ‘username’ is in session before doing any other operations.
-
 def logout():
     session.pop('username')
     return redirect('/')
