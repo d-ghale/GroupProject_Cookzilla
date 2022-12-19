@@ -5,41 +5,46 @@
 3. Used prepared statements
 
 Allow a user to:
-1. **Search for Recipes**:
-   - Users can search for recipe with the name similar to the input
-   - Users can search for recipes by tag and/or stars. They can search for recipes that have all the input tags or any one. They can also combine tags and star search as they want.
+1. **Search for Recipes**: 
+
+  Users should be able to search for recipes that have a particular tag and/or a given number of stars.
+  We implemented that given an input star, we will search for stars strictly greater than the input star.
   
 2. **Display Recipe Info**: 
-   - display relevant information about the recipe, including the description, the steps in order, the reviews for that recipe etc
+
+  Given a recipeID (possibly selected from a menu based on a search), display relevant information about the recipe, including the description, the steps in order, etc.
+  We implemented images related to the recipe and review also be displayed. 
+  
   
 3. **Login**:
 
-   - The user enters her username and password. Cookzilla will add “salt” to the password, hash it, and check whether the hash of the password matches the stored password for that username. If so, it initiates a session, storing the username and any other relevant data in session variables, then goes to the home page. 
+
+  The user enters her username and password. Cookzilla will add “salt” to the password, hash it, and check whether the hash of the password matches the stored password for that username. If so, it initiates a session, storing the username and any other relevant data in session variables, then goes to the home page. 
    
    **The remaining use cases require the user to be logged in.**
 
+
 4. **Post a Recipe**: 
 
-   - Post a recipe and related data (steps, ingredients, tags, etc)
+  Post a recipe and related data (steps, tags, etc)
 
 **Extensions**:
 
-1. Log users’ actions and display recipes and/or reviews that they viewed recently 
-   - Recently views tab on home screen shows the last 5 recently viewed recipes by the user.
+1. Log users’ actions and display recipes and/or reviews that they viewed recently: 
+
+    - Display the 5 most recent viewed recipes. 
 
 2. Post a review: 
-   - Allows users to post a review on any recipe. 
-   - Allows only one review per recipe.
-   - Users can post pictures in reviews.
+    - A user cannot post more than one review per recipe, and can post an image with the review.
 
 3. Post an event for a group that user belongs to: 
 
-    - If a user is a part of a member of the group then they should be able to post an event for that group. 
+    - Only members of the group should be able to post an event for that group. 
     - Please specify group name and group creator as multiple groups can have same name with different creator. 
 
 4. RSVP to an event that the user belongs to:
 
-   - If a user is a part of a member of the group then they should be able to RSVP for an event scheduled for that group. 
+   - Only members of the group can RSVP for an event already scheduled for that group using eID. You can find eID by viewing the group information.  
    - User can also change their response by going to RSVP page again. 
 
 5. More complex searches:
@@ -48,5 +53,6 @@ Allow a user to:
     - Recipes which have not been seen by anyone during the last week.
     - Star User: User who has reviewed every recipe
 
-6. Search for users with similar taste as the given user:
-    - User can search for other users who have given a similar rating to other recipes with either a tag,ingredient or recipe name that is given in the  respective input field.
+6. Search for users with similar taste as the given user (e.g. who have given similar ratings to some kinds of recipes):
+    - Search for users who gave similar ratings to the logged-in user for recipes with tag, ingredient or receipe name. 
+
