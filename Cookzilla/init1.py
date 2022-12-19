@@ -942,7 +942,7 @@ def complexQueries():
         q2len=len(q2)
 
         stmt3='select * from ((SELECT recipeId From recipe) EXCEPT (SELECT DISTINCT(recipeId) FROM userlog WHERE logtime>%s)) As recipesNotViewed JOIN Recipe ON Recipe.RecipeId=recipesNotViewed.recipeId'
-        cursor.execute(stmt3,((datetime.now()- timedelta(days=30)).strftime("%Y-%m-%d %H:%M:%S")))
+        cursor.execute(stmt3,((datetime.now()- timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")))
         q3 = cursor.fetchall()
         q3len=len(q3)  
 
