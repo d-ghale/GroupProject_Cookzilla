@@ -51,6 +51,6 @@ Allow a user to:
     - Star User: User who has reviewed every recipe
 
 6. Search for users with similar taste as the given user:
-    - User can search for other users who have given a similar rating to other recipes with either a tag,indgredient or recipe name that is given in the  respective input field.
+    - User can search for other users who have given a similar rating to other recipes with either a tag, ingredient or recipe name that is given in the  respective input field.
 
 
