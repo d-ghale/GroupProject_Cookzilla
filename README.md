@@ -7,7 +7,8 @@
 Allow a user to:
 1. **Search for Recipes**: 
 
-  Users should be able to search for recipes that have a particular tag and/or a given number of stars.
+  - Users can search for recipe with the name similar to the input
+  - Users can search for recipes by tag and/or stars. They can search for recipes that have all the input tags or any one. They can also combine tags and star search as they want.
   
 2. **Display Recipe Info**: 
 
@@ -49,6 +50,7 @@ Allow a user to:
     - Recipes which have not been seen by anyone during the last week.
     - Star User: User who has reviewed every recipe
 
-6. Search for users with similar taste as the given user (e.g. who have given similar ratings to some kinds of recipes):
+6. Search for users with similar taste as the given user:
+    - User can search for other users who have given a similar rating to other recipes with either a tag,indgredient or recipe name that is given in the  respective input field.
 
 
