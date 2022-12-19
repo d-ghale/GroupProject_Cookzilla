@@ -469,7 +469,6 @@ def add_event_process():
         group_name = request.form['group_name']
         group_creator = request.form['group_creator']
         event_datetime = datetime.strptime(event_date + " " + event_time, "%Y-%m-%d %H:%M")
-        print(event_description)
         cursor = conn.cursor()
         # User has to be part of the group to create an event  
         ins_check='SELECT * FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName=%s'
@@ -488,10 +487,21 @@ def add_event_process():
 
             ## We need to somehow maybe?? grab eID to make that the next part run for this function
             #Fetching the info
-            ins1='SELECT * FROM Event WHERE eName=%s AND eDesc=%s AND  eDate=%s AND gName=%s AND gCreator=%s'
-            cursor.execute(ins1,(event_name,event_description,event_datetime, group_name,group_creator))
-            Eventdata = cursor.fetchall()
+            qEid='SELECT LAST_INSERT_ID()'
+            cursor.execute(qEid)
+            getEid=cursor.fetchone()
+            print(getEid)
+            print(getEid["LAST_INSERT_ID()"])
+    
+            ins1='SELECT * FROM Event WHERE eID=%s'
+            cursor.execute(ins1,(getEid["LAST_INSERT_ID()"]))
+            Eventdata = cursor.fetchone()
             print(Eventdata)
+
+            # ins1='SELECT * FROM Event WHERE eName=%s AND eDesc=%s AND  eDate=%s AND gName=%s AND gCreator=%s'
+            # cursor.execute(ins1,(event_name,event_description,event_datetime, group_name,group_creator))
+            # Eventdata = cursor.fetchall()
+            # print(Eventdata)
 
             conn.commit()
             # return render_template('viewoneevent.html', message_join=message_join)
