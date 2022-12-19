@@ -25,8 +25,12 @@ Allow a user to:
 **Extensions**:
 
 1. Log users’ actions and display recipes and/or reviews that they viewed recently 
+   - Recently views tab on home screen shows the last 5 recently viewed recipes by the user.
 
 2. Post a review: 
+   - Allows users to post a review on any recipe. 
+   - Allows only one review per recipe.
+   - Users can post pictures in reviews.
 
 3. Post an event for a group that user belongs to: 
 
