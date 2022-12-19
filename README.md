@@ -5,32 +5,26 @@
 3. Used prepared statements
 
 Allow a user to:
-1. **Search for Recipes**: 
-
-  - Users can search for recipe with the name similar to the input
-  - Users can search for recipes by tag and/or stars. They can search for recipes that have all the input tags or any one. They can also combine tags and star search as they want.
+1. **Search for Recipes**:
+   - Users can search for recipe with the name similar to the input
+   - Users can search for recipes by tag and/or stars. They can search for recipes that have all the input tags or any one. They can also combine tags and star search as they want.
   
 2. **Display Recipe Info**: 
-
-  Given a recipeID (possibly selected from a menu based on a search), display relevant information about the recipe, including the description, the steps in order, etc
-  
+   - display relevant information about the recipe, including the description, the steps in order, the reviews for that recipe etc
   
 3. **Login**:
 
-
-  The user enters her username and password. Cookzilla will add “salt” to the password, hash it, and check whether the hash of the password matches the stored password for that username. If so, it initiates a session, storing the username and any other relevant data in session variables, then goes to the home page. 
+   - The user enters her username and password. Cookzilla will add “salt” to the password, hash it, and check whether the hash of the password matches the stored password for that username. If so, it initiates a session, storing the username and any other relevant data in session variables, then goes to the home page. 
    
    **The remaining use cases require the user to be logged in.**
 
-
 4. **Post a Recipe**: 
 
-
-  Post a recipe and related data (steps, tags, etc)
+   - Post a recipe and related data (steps, ingredients, tags, etc)
 
 **Extensions**:
 
-1. Log users’ actions and display recipes and/or reviews that they viewed recently: 
+1. Log users’ actions and display recipes and/or reviews that they viewed recently 
 
 2. Post a review: 
 
@@ -51,6 +45,4 @@ Allow a user to:
     - Star User: User who has reviewed every recipe
 
 6. Search for users with similar taste as the given user:
-    - User can search for other users who have given a similar rating to other recipes with either a tag, ingredient or recipe name that is given in the  respective input field.
-
-
+    - User can search for other users who have given a similar rating to other recipes with either a tag,ingredient or recipe name that is given in the  respective input field.
