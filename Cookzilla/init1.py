@@ -841,14 +841,14 @@ def findUsers():
 
         if len(keysDict.keys())==1: 
             if keysDict.keys()>={'tag'}:
-                ins='SELECT * from person NATURAL JOIN recipe NATURAL JOIN recipetag NATURAL JOIN review AS R1 where tagText=%s and stars-(SELECT stars FROM recipe NATURAL JOIN recipetag NATURAL JOIN review AS R2 where R1.recipeID=R2.recipeID AND tagText=%s GROUP BY postedBy HAVING postedBy= %s) <2 and userName!= %s'
+                ins='SELECT * from person NATURAL JOIN recipe NATURAL JOIN recipetag NATURAL JOIN review AS R1 where tagText=%s and ABS(stars-(SELECT stars FROM recipe NATURAL JOIN recipetag NATURAL JOIN review AS R2 where R1.recipeID=R2.recipeID AND tagText=%s GROUP BY userName HAVING userName= %s)) <2 and userName!= %s'
 
                 args=[keysDict['tag'],keysDict['tag'],session.get('username'),session.get('username')]
             elif keysDict.keys()>={'ingredient'}:
-                ins='SELECT * from person NATURAL JOIN recipe NATURAL JOIN recipeingredient NATURAL JOIN review where iName=%s and stars-(SELECT stars FROM recipe NATURAL JOIN recipeingredient NATURAL JOIN review where iName=%s GROUP BY postedBy HAVING postedBy= %s) <2 and userName!= %s'
+                ins='SELECT * from person NATURAL JOIN recipe NATURAL JOIN recipeingredient NATURAL JOIN review where iName=%s and stars-(SELECT stars FROM recipe NATURAL JOIN recipeingredient NATURAL JOIN review where iName=%s GROUP BY userName HAVING userName= %s) <2 and userName!= %s'
                 args=[keysDict['ingredient'],keysDict['ingredient'],session.get('username'),session.get('username')]
             else:
-                ins='SELECT * from person NATURAL JOIN recipe NATURAL JOIN review where title LIKE %s and stars-(SELECT stars FROM recipe NATURAL JOIN review where title LIKE %s GROUP BY postedBy HAVING postedBy= %s) <2 and userName!= %s'
+                ins='SELECT * from person NATURAL JOIN recipe NATURAL JOIN review where title LIKE %s and stars-(SELECT stars FROM recipe NATURAL JOIN review where title LIKE %s GROUP BY userName HAVING userName= %s) <2 and userName!= %s'
                 recipeName='%'+keysDict['recname']+'%'
                 args=[recipeName,recipeName,session.get('username'),session.get('username')]
         else:
