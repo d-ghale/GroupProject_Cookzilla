@@ -11,7 +11,6 @@ Allow a user to:
   
 2. **Display Recipe Info**: 
 
-
   Given a recipeID (possibly selected from a menu based on a search), display relevant information about the recipe, including the description, the steps in order, etc
   
   
@@ -36,11 +35,13 @@ Allow a user to:
 
 3. Post an event for a group that user belongs to: 
 
-If a user is a part of a member of the group then they should be able to post an event for that group. Please specify group name and group creator as multiple groups can have same name with different creator. 
+    - If a user is a part of a member of the group then they should be able to post an event for that group. 
+    - Please specify group name and group creator as multiple groups can have same name with different creator. 
 
 4. RSVP to an event that the user belongs to:
 
-If a user is a part of a member of the group then they should be able to RSVP for an event scheduled for that group. User can also change their response by going to RSVP page again. 
+   - If a user is a part of a member of the group then they should be able to RSVP for an event scheduled for that group. 
+   - User can also change their response by going to RSVP page again. 
 
 5. More complex searches:
     - Users who have given the rating 5 to every Recipe that logged-in user rated 5
