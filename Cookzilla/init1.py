@@ -25,19 +25,10 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 conn = pymysql.connect(host='localhost',
                        port = 3306,
                        user='root',
-                       password='password',
+                       password='',
                        db='Test',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
-##Doma's conn below
-# conn = pymysql.connect(host='localhost',
-#                        port = 8889,
-#                        user='root',
-#                        password='root',
-#                        db='Test',
-#                        charset='utf8mb4',
-#                        cursorclass=pymysql.cursors.DictCursor)
-
 
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -478,7 +469,6 @@ def add_event_process():
         group_name = request.form['group_name']
         group_creator = request.form['group_creator']
         event_datetime = datetime.strptime(event_date + " " + event_time, "%Y-%m-%d %H:%M")
-        print(event_description)
         cursor = conn.cursor()
         # User has to be part of the group to create an event  
         ins_check='SELECT * FROM GroupMembership WHERE gName=%s AND gCreator=%s AND memberName=%s'
@@ -497,10 +487,21 @@ def add_event_process():
 
             ## We need to somehow maybe?? grab eID to make that the next part run for this function
             #Fetching the info
-            ins1='SELECT * FROM Event WHERE eName=%s AND eDesc=%s AND  eDate=%s AND gName=%s AND gCreator=%s'
-            cursor.execute(ins1,(event_name,event_description,event_datetime, group_name,group_creator))
-            Eventdata = cursor.fetchall()
+            qEid='SELECT LAST_INSERT_ID()'
+            cursor.execute(qEid)
+            getEid=cursor.fetchone()
+            print(getEid)
+            print(getEid["LAST_INSERT_ID()"])
+    
+            ins1='SELECT * FROM Event WHERE eID=%s'
+            cursor.execute(ins1,(getEid["LAST_INSERT_ID()"]))
+            Eventdata = cursor.fetchone()
             print(Eventdata)
+
+            # ins1='SELECT * FROM Event WHERE eName=%s AND eDesc=%s AND  eDate=%s AND gName=%s AND gCreator=%s'
+            # cursor.execute(ins1,(event_name,event_description,event_datetime, group_name,group_creator))
+            # Eventdata = cursor.fetchall()
+            # print(Eventdata)
 
             conn.commit()
             # return render_template('viewoneevent.html', message_join=message_join)
@@ -705,9 +706,9 @@ def viewonerecipe():
         RecipePictureURL = "../" +RecipePicturedata[0]['pictureURL']
         print(RecipePictureURL)
         return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,RecipePictureURL=RecipePictureURL)
-    elif len(RecipePicturedata) > 0:
+    elif len(ReviewPicturedata) > 0:
         ReviewPictureURLs = ["../" +ReviewData[i]['pictureURL'] if ReviewData[i]['pictureURL']!=None else "" for i in range(len (ReviewData))]
-        print(RecipePictureURL)
+        print(ReviewPictureURLs)
         return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData,ReviewPictureURLs=ReviewPictureURLs)
     else: 
         return render_template('viewonerecipe.html', NumReview=NumReviews, Recipedata=Recipedata,RecipeIngredientdata=RecipeIngredientStr,Stepdata=StepStr,Tagdata=TagStr,recipeID=recipeID,ReviewData=ReviewData)
